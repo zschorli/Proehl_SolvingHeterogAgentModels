@@ -16,15 +16,15 @@ diffs = ones(1,2);
 b = 0.1;
 k_prime = reshape(sol_y',[size(sol_y',1)/4,4])';
 
-mult = 1.2;
+mult = 1.01;
 m = mult^iter;
-e = 1/(iter^1.51);
+e = 1/(iter^2);
 tol = (e^2)/(2*m); 
 alpha = sqrt((b*A*m)^2+4*b*A*m)/2-b*A*m/2;
 
 % outer loop for finding the price
 if (Sol.diff(max(1,iter-1),3)>1e-10 || iter<=10) 
-    options = optimset('Display','off','Jacobian','off','TolFun',min(1e-3,tol^2),'TolX',eps,'MaxIter',400);
+    options = optimset('Display','off','Jacobian','off','TolFun',min(1e-6,tol^2),'TolX',eps,'MaxIter',400);
     [p_new,~,flag_p] = fsolve(@(p) EC_AggShock(p,k_prime,sol_y,sol_y_1,y,y2,agK_m,grid,m,StaticParams,Sol,Poly,c_pr_der,tol),...
                    pr,options);
 else
@@ -42,8 +42,8 @@ else
 end
 
 % dampening because initital iterations are too far from solution
-if iter<=5
-    p_new = 0.5*(p_new+pr);
+if iter<=20
+    p_new = 0.6*p_new+0.4*pr;
 end
            
 k_prime_new = reshape(sol,size(k_prime'))';

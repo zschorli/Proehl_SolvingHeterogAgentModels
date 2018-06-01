@@ -265,7 +265,7 @@ hold off
 if case_nr==1
     axis([StaticParams.k_min 3 0 0.045])
 else
-    axis([StaticParams.k_min 1 0 0.04])
+    axis([StaticParams.k_min 1 0 0.12])
 end
 legend('PPA 1^{st} order','PPA 2^{nd} order','PPA 3^{rd} order','PPA 4^{th} order')%
 xlabel('individual asset allocation a');
@@ -273,15 +273,20 @@ ylabel('probability');
 title('Panel A')
 subplot(1,2,2)
 hold on
-plot(StaticParams.kGrid,p*Sol1.pdf,'r','LineWidth',1.5);
-plot(StaticParams.kGrid,p*Sol2.pdf,'c','LineWidth',1.5);
-plot(StaticParams.kGrid,p*Sol3.pdf,'b','LineWidth',1.5);
-plot(StaticParams.kGrid,p*Sol4.pdf,'m--','LineWidth',1.5);
+x = sort([StaticParams.kGrid(1:end),StaticParams.kGrid(1:end-1)+1e-4]);
+y = p*Sol1.pdf;
+plot(x,y(sort([2:end,1:end])),'r','LineWidth',1.5);
+y = p*Sol2.pdf;
+plot(x,y(sort([2:end,1:end])),'c','LineWidth',1.5);
+y = p*Sol3.pdf;
+plot(x,y(sort([2:end,1:end])),'b','LineWidth',1.5);
+y = p*Sol4.pdf;
+plot(x,y(sort([2:end,1:end])),'m--','LineWidth',1.5);
 hold off
 if case_nr==1
     axis([StaticParams.k_min -1 0 0.045])
 else
-    axis([StaticParams.k_min -0.3 0 0.18])
+    axis([StaticParams.k_min -0.3 0 0.12])
 end
 xlabel('individual asset allocation a');
 ylabel('probability');
@@ -291,22 +296,27 @@ end
 %--------------------------------------------------------------------------
 % Price Distribution
 %--------------------------------------------------------------------------
-Res = load('res_Huggett_case1/Res.mat');
-[a1,b1]=hist(squeeze(Res.pr(1,4,:)),100);
+Res1 = load('res_Huggett_case1/Res.mat');
+[a1,b1]=hist(squeeze(Res1.pr(1,4,:)),100);
 a1=a1/sum(a1);
-Res = load('res_Huggett_case2/Res.mat');
-[a2,b2]=hist(squeeze(Res.pr(1,4,:)),100);
+Res2 = load('res_Huggett_case2/Res.mat');
+[a2,b2]=hist(squeeze(Res2.pr(1,4,:)),100);
 a2=a2/sum(a2);
-Res = load('res_Huggett_case3/Res.mat');
-[a3,b3]=hist(squeeze(Res.pr(1,4,:)),100);
+Res3 = load('res_Huggett_case3/Res.mat');
+[a3,b3]=hist(squeeze(Res3.pr(1,4,:)),100);
 a3=a3/sum(a3);
+Res4 = load('res_Huggett_case4/Res.mat');
+[a4,b4]=hist(squeeze(Res4.pr(1,4,:)),100);
+a4=a4/sum(a4);
 
 
 figure(17)
 hold on
-plot([b1(1),sort([b1,b1(2:end)-1e-4]),b1(end)],[0,a1(sort([1:end,1:end-1])),0],'r')
-plot([b2(1),sort([b2,b2(2:end)-1e-4]),b2(end)],[0,a2(sort([1:end,1:end-1])),0],'b')
-plot([b3(1),sort([b3,b3(2:end)-1e-4]),b3(end)],[0,a3(sort([1:end,1:end-1])),0],'g')
+h4=plot([b4(1),sort([b4,b4(2:end)-1e-4]),b4(end)],[0,a4(sort([1:end,1:end-1])),0],'g','LineWidth',1.5);
+h2=plot([b3(1),sort([b3,b3(2:end)-1e-4]),b3(end)],[0,a3(sort([1:end,1:end-1])),0],'c','LineWidth',1.5);
+h3=plot([b1(1),sort([b1,b1(2:end)-1e-4]),b1(end)],[0,a1(sort([1:end,1:end-1])),0],'r');
+h1=plot([b2(1),sort([b2,b2(2:end)-1e-4]),b2(end)],[0,a2(sort([1:end,1:end-1])),0],'m');
 hold off
 xlabel('prices');
 ylabel('probability');
+legend([h1,h2,h3,h4],{'$\bar{a}=0.5$','$\bar{a}=1$','$\bar{a}=1.5$','$\bar{a}=2$'},'Interpreter','latex','Location','Northwest')
