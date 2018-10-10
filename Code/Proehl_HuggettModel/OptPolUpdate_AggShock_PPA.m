@@ -54,18 +54,18 @@ end
 if iter<=5
     p_new = p_start;
     [~,flag,sol] = solveEquCond(tol,k_prime,sol_y_1,p_new,y,y2,...
-                      agK_m,grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y,iter);
+                      agK_m,grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y);
 else
     options = optimoptions('fsolve','Display','off','FunctionTolerance',min(StaticParams.criter_pdf,tol^2),'TolX',eps,'MaxIter',400);
     p_new = fsolve(@(p) solveEquCond(tol,k_prime,sol_y_1,p,y,y2,agK_m,...
-                        grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y,iter),...
+                        grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y),...
                    p_start,options);
     [~,flag,sol] = solveEquCond(tol,k_prime,sol_y_1,p_new,y,y2,...
-                          agK_m,grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y,iter);
+                          agK_m,grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y);
     if flag <=0 && iter<=20
         p_new = p_start;
         [~,flag,sol] = solveEquCond(tol,k_prime,sol_y_1,p_new,y,y2,...
-                          agK_m,grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y,iter);
+                          agK_m,grid,m,StaticParams,Sol,Poly,c_pr_der,sol_y);
         flag = 100+flag;
     end
 end
