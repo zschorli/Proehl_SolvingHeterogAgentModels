@@ -1,0 +1,33 @@
+The author agrees to make the Software accompanying the working paper 
+“Approximating Equilibria with Ex-Post Heterogeneity and Aggregate Risk” 
+by Elisabeth Proehl, (October 2018), available to you under the following 
+conditions.
+
+1. Any work that contains some results derived from the software or a
+   modified version must: 
+
+   a. provide a prominent description of the use of the software in the text; 
+
+   a. cite the working paper “Approximating Equilibria with Ex-Post 
+      Heterogeneity and Aggregate Risk” by Elisabeth Proehl (October 2018).
+
+2. The software and any modified version may be redistributed under the 
+   terms of the present license agreement. Redistributions must include 
+   the original Software, this license agreement and the source code of 
+   the modified version with a prominent notice stating that the Software 
+   was changed and the date of the change.
+
+3. The software comes “as is” and is used at your own risk. Any modification 
+   of the software is your own responsibility.  The author assumes no 
+   obligation to provide assistance with using the software, makes no 
+   warranties concerning the performance of the software and is not 
+   liable to you or any entity for any damage related to the use of the 
+   software. 
+
+4. The use of the software is restricted to noncommercial research and 
+   educational purposes. If the software or a modified version leads to the 
+   development of materials (including software, teaching materials, patents), 
+   which may be used for commercial purposes, a specific agreement must be 
+   negotiated between the author and the beneficiary. 
+
+5. The software is protected by copyright and other applicable laws. 
