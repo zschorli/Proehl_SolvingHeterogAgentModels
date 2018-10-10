@@ -8,7 +8,9 @@ The following items are provided:
 
 1. LICENSE AGREEMENT.
 
-2. FOLDERS. 
+2. VIDEOS OF SIMULATIONS
+
+3. CODE CONTAINING SUBFOLDERS:
 
    a. Folders containing novel code written for this working paper:
 
@@ -59,7 +61,7 @@ The following items are provided:
             Economic Dynamics and Control, Volume 34, Issue 1, 2010, 
             Pages 28-35.
 
-3. INSTRUCTIONS TO REPRODUCE ALL RESULTS IN THE PAPER.
+4. INSTRUCTIONS TO REPRODUCE ALL RESULTS IN THE PAPER.
 	
    a. Growth model:
 	
