@@ -2,7 +2,7 @@
 % Heterogeneity and Aggregate Risk" by Elisabeth Pröhl
 %
 % AUTHOR Elisabeth Pröhl, University of Amsterdam
-% DATE October 2018
+% DATE May 2025
 %
 % DESCRIPTION
 % This function computes the new-period weights in the iteration for the 

@@ -2,7 +2,7 @@
 % Heterogeneity and Aggregate Risk" by Elisabeth Pröhl
 %
 % AUTHOR Elisabeth Pröhl, University of Amsterdam
-% DATE October 2018
+% DATE May 2025
 %
 % DESCRIPTION
 % This is the main file
@@ -11,30 +11,11 @@
 %--------------------------------------------------------------------------
 % Choose model configuration
 %--------------------------------------------------------------------------
-% Choose a number between 1 and 20:
 % 1 benchmark model (see online appendix on model parameters)
-% 2 unemployment benefit of 65%
-% 3 unemployment benefit of 5%
-% 4 unemployment benefit of 40%
-% 5 subjective discount factor of 0.9
-% 6 subjective discount factor of 0.999
-% 7 risk aversion of 2
-% 8 risk aversion of 4
-% 9 production function elasticity of 0.2
-% 10 production function elasticity of 0.45
-% 11 depreciation rate of 1%
-% 12 depreciation rate of 7.5%
-% 13 unemployment benefit of 65%, subjective discount factor of 0.9
-% 14 unemployment benefit of 65%, subjective discount factor of 0.999
-% 15 unemployment benefit of 65%, risk aversion of 2
-% 16 unemployment benefit of 65%, risk aversion of 4
-% 17 unemployment benefit of 65%, production function elasticity of 0.2
-% 18 unemployment benefit of 65%, production function elasticity of 0.45
-% 19 unemployment benefit of 65%, depreciation rate of 1%
-% 20 unemployment benefit of 65%, depreciation rate of 7.5%
+% 2 unemployment benefit of 40%
+% 3 unemployment benefit of 65%
 
-case_nr = 1;
-
+for case_nr = 1:3
 folder = strcat('res_case',num2str(case_nr));        
 if exist(folder,'dir') ~= 7
     mkdir(folder);
@@ -58,29 +39,37 @@ save(strcat(folder,'/StaticParams.mat'),'-struct','StaticParams');
 %--------------------------------------------------------------------------
 % Model without aggregate risk
 %--------------------------------------------------------------------------
-solveModel_NoAggShock(StaticParams,folder,case_nr);
+solveModel_NoAggShock(StaticParams,folder);
 
 %--------------------------------------------------------------------------
 % Generate orthogonal polynomials for polynomial chaos approximation
 %--------------------------------------------------------------------------
 % first set the order of truncation of the polynomial chaos approximation
-switch case_nr
-    case {2,4}        
-        order = 4;
-    otherwise 
-        order = 3;
-end
+order = 3;
 setPoly(StaticParams,folder,order);
 
 %--------------------------------------------------------------------------
 % Model with aggregate risk
 %--------------------------------------------------------------------------
 solveModel_AggShock(StaticParams,case_nr,folder,order);
+end
+
+%--------------------------------------------------------------------------
+% Run the Krusell-Smith algo for comparison
+%--------------------------------------------------------------------------
+for nr_moments=1:4
+    file = strcat('C:\Users\Elisabeth Proehl\Documents\GitHub\Proehl_SolvingHeterogAgentModels\Code\KrusellSmithByMaliarMaliarValli_',num2str(nr_moments),'mom\MAIN.m');
+    run(file);
+end
 
 %--------------------------------------------------------------------------
 % Compute Results
 %--------------------------------------------------------------------------
+for case_nr = 1:3
+folder = strcat('res_case',num2str(case_nr));        
+StaticParams = load(strcat('C:\Users\Elisabeth Proehl\Documents\GitHub\Proehl_SolvingHeterogAgentModels\Code\Proehl_GrowthModel\res_case',num2str(case_nr),'\StaticParams.mat'));
+
 results_statDistr(case_nr,StaticParams,folder);
-if case_nr<=2
-    results_Errors(case_nr,StaticParams,folder);
+results_Errors(case_nr,StaticParams,folder);
 end
+compareDistr_NoAggShock;

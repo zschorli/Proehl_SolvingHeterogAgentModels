@@ -99,11 +99,11 @@ for t=1:T
   % Individual capital function, k'
   %________________________________________________________________________
    
-  kprimet(:,1)=interpn(k,km,kprime(:,:,agshock(t),1),kvalues,kmts(t)*ones(J,1),'linear'); 
+  kprimet(:,1)=interpn(k,km,kprime(:,:,agshock(t),1),kvalues,kmts(t)*ones(J,1),'spline'); 
       % interpolate the capital function k' (computed in "MAIN") of the 
       % unemployed agent in kvalues for the given agg. capital km_ag(t)
       
-  kprimet(:,2)=interpn(k,km,kprime(:,:,agshock(t),2),kvalues,kmts(t)*ones(J,1),'linear');
+  kprimet(:,2)=interpn(k,km,kprime(:,:,agshock(t),2),kvalues,kmts(t)*ones(J,1),'spline');
       % the same for the employed agent
       
    kprimet=kprimet.*(kprimet>=kvalues_min).*(kprimet<=kvalues_max)+kvalues_min*(kprimet<kvalues_min)+kvalues_max*(kprimet>kvalues_max);
@@ -140,11 +140,11 @@ for t=1:T
       %consider k' until the grid point (J-(index_max-1)); otherwise, 
       % consider k' until the last grid point, which is J 
 
-   xt(:,1)=interp1(kprimet(first(1):last(1),1),kvalues(first(1):last(1),1), kvalues,'linear'); 
+   xt(:,1)=interp1(kprimet(first(1):last(1),1),kvalues(first(1):last(1),1), kvalues,'spline'); 
       % find x(k') in the unemployed state (state 1) by interpolation (see 
       % condition (10) in the paper)
       
-   xt(:,2)=interp1(kprimet(first(2):last(2),2),kvalues(first(2):last(2),1), kvalues,'linear');
+   xt(:,2)=interp1(kprimet(first(2):last(2),2),kvalues(first(2):last(2),1), kvalues,'spline');
       % find x(k') in the employed state (state 2) by interpolation
 
    xt=xt.*(xt>=kvalues_min).*(xt<=kvalues_max)+kvalues_min*(xt<kvalues_min)+kvalues_max*(xt>kvalues_max);

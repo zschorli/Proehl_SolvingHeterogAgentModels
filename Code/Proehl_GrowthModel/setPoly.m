@@ -2,7 +2,7 @@
 % Heterogeneity and Aggregate Risk" by Elisabeth Pröhl
 %
 % AUTHOR Elisabeth Pröhl, University of Amsterdam
-% DATE October 2018
+% DATE May 2025
 %
 % DESCRIPTION
 % This file sets the base random vaiables and generates the corresponding 
@@ -60,9 +60,12 @@ for n=1:2
             end
         else        
            if i<=Poly.phi_N+1
-               alpha = ((Poly.grid{n}.*(Poly.phi_coeffs{n}(i-1,:)*Poly.xi{n}).^2)*Poly.pdf{n}')/max(eps,((Poly.phi_coeffs{n}(i-1,:)*Poly.xi{n}).^2)*Poly.pdf{n}');
-               beta = (((Poly.phi_coeffs{n}(i-1,:)*Poly.xi{n}).^2)*Poly.pdf{n}')/max(eps,((Poly.phi_coeffs{n}(i-2,:)*Poly.xi{n}).^2)*Poly.pdf{n}');
-               Poly.phi_coeffs{n}(i,:) = [0,Poly.phi_coeffs{n}(i-1,1:end-1)]-alpha*Poly.phi_coeffs{n}(i-1,:)-beta*Poly.phi_coeffs{n}(i-2,:);
+               alpha = ((Poly.grid{n}.*(Poly.phi_coeffs{n}(i-1,:)*Poly.xi{n}).^2)*Poly.pdf{n}')...
+                       /max(eps,((Poly.phi_coeffs{n}(i-1,:)*Poly.xi{n}).^2)*Poly.pdf{n}');
+               beta = (((Poly.phi_coeffs{n}(i-1,:)*Poly.xi{n}).^2)*Poly.pdf{n}')...
+                      /max(eps,((Poly.phi_coeffs{n}(i-2,:)*Poly.xi{n}).^2)*Poly.pdf{n}');
+               Poly.phi_coeffs{n}(i,:) = [0,Poly.phi_coeffs{n}(i-1,1:end-1)]...
+                     -alpha*Poly.phi_coeffs{n}(i-1,:)-beta*Poly.phi_coeffs{n}(i-2,:);
            end
         end
     end
@@ -102,11 +105,11 @@ Poly.T(1,2,:,:) = [T1(1,1),Poly.pdf{1}(2:3)/sum(Poly.pdf{1}(2:3)).*T1(1,2);...
                    T1(2,1),Poly.pdf{1}(2:3)/sum(Poly.pdf{1}(2:3)).*T1(2,2)];
 T1 = T(2,1);
 Poly.T(2,1,:,:) = [Poly.pdf{1}(1:2)/sum(Poly.pdf{1}(1:2)).*T1(1,1),T1(1,2);...
-                   Poly.pdf{1}(1:2)/sum(Poly.pdf{1}(1:2)).*T1(1,1),T1(1,2);...
-                   Poly.pdf{1}(1:2)/sum(Poly.pdf{1}(1:2)).*T1(1,1),T1(1,2)];
+                   Poly.pdf{1}(1:2)/sum(Poly.pdf{1}(1:2)).*T1(2,1),T1(2,2);...
+                   Poly.pdf{1}(1:2)/sum(Poly.pdf{1}(1:2)).*T1(2,1),T1(2,2)];
 T1 = T(2,2);
 Poly.T(2,2,:,:) =  [T1(1,1),Poly.pdf{1}(2:3)/sum(Poly.pdf{1}(2:3)).*T1(1,2);...
-                    T1(1,1),Poly.pdf{1}(2:3)/sum(Poly.pdf{1}(2:3)).*T1(1,2);...
+                    T1(2,1),Poly.pdf{1}(2:3)/sum(Poly.pdf{1}(2:3)).*T1(2,2);...
                     T1(2,1),Poly.pdf{1}(2:3)/sum(Poly.pdf{1}(2:3)).*T1(2,2)];
 clear T1 T;
 

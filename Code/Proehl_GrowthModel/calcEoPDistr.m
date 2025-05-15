@@ -2,7 +2,7 @@
 % Heterogeneity and Aggregate Risk" by Elisabeth Pröhl
 %
 % AUTHOR Elisabeth Pröhl, University of Amsterdam
-% DATE October 2018
+% DATE May 2025
 %
 % DESCRIPTION
 % This function calculates the law of motion from the beginning-of-period

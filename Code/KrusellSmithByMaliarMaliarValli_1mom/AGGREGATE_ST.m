@@ -4,16 +4,18 @@
 %
 % Written by Lilia Maliar, Serguei Maliar and Fernando Valli (2008)
 
-function [kmts,kcross]  = AGGREGATE_ST(T,idshock,agshock,km_max,km_min,kprime,km,k,epsilon2,k_min,k_max,kcross,a2);
+function [kmts,kcross_out]  = AGGREGATE_ST(T,idshock,agshock,km_max,km_min,kprime,km,k,epsilon2,k_min,k_max,kcross,a2);
 
 kmts=zeros(T,1);         % a time series of the mean of capital distribution 
+kmts_b=zeros(T,1);
+kcross_out = kcross;
 
 for t=1:T
   
    kmts(t)=mean(kcross); % find the t-th observation of kmts by computing 
                          % the mean of the t-th period cross-sectional 
                          % distribution of capital
-   kmts(t)=kmts(t)*(kmts(t)>=km_min)*(kmts(t)<=km_max)+km_min*(kmts(t)<km_min)+km_max*(kmts(t)>km_max); % restrict kmts to be within [km_min, km_max]
+   kmts_b(t)=kmts(t)*(kmts(t)>=km_min)*(kmts(t)<=km_max)+km_min*(kmts(t)<km_min)+km_max*(kmts(t)>km_max); % restrict kmts to be within [km_min, km_max]
    
    % To find kmts(t+1), we should compute a new cross-sectional distribution 
    % at t+1. For this purpose, we first find kprime by interpolation for 
@@ -21,7 +23,7 @@ for t=1:T
    % compute new kcross by interpolation (kcrossn below) given the previous 
    % kcross and the realized idshock(t)
    
-   kprimet4=interpn(k,km,a2,epsilon2,kprime,k, kmts(t),agshock(t),epsilon2,'spline');
+   kprimet4=interpn(k,km,a2,epsilon2,kprime,k, kmts_b(t),agshock(t),epsilon2,'spline');
       % a four-dimensional capital function at time t is obtained by fixing
       % known kmts(t) and agshock (t)
       
@@ -36,6 +38,8 @@ for t=1:T
    kcrossn=kcrossn.*(kcrossn>=k_min).*(kcrossn<=k_max)+k_min*(kcrossn<k_min)+k_max*(kcrossn>k_max); % restrict kcross to be within [k_min, k_max]
                               
    kcross=kcrossn;
-   
+   if kmts(t)==kmts_b(t) 
+      kcross_out = kcrossn;
+   end
 end
 end

@@ -2,19 +2,15 @@
 % Heterogeneity and Aggregate Risk" by Elisabeth Pröhl
 %
 % AUTHOR Elisabeth Pröhl, University of Amsterdam
-% DATE October 2018
+% DATE May 2025
 %
 % DESCRIPTION
 % This file implements the policy function iteration for the model without
 % aggregate shocks.
 %__________________________________________________________________________
 function [c,k_prime,diffs] ...
-         = OptPol_NoAggShock_PFI(bool_gb,c,k_prime,StaticParams,preSol)
-
-grid = linspace(eps,100,10001);    
-u_der_grid = 1./(grid.^StaticParams.gamma);       
-u_der = @(x) interp1(grid,u_der_grid,max(eps,x),'linear','extrap');
-u_der_inv = @(x) interp1(u_der_grid,grid,max(eps,x),'linear','extrap');
+         = OptPol_NoAggShock_PFI(bool_gb,c,k_prime,StaticParams)
+ 
 diffs = 1e8.*ones(2,1);
 iter=0;
 c_new = zeros(size(c));
@@ -23,17 +19,21 @@ if bool_gb
 else
    P = StaticParams.P_b;
 end   
+MargUt = @(c) c.^(-StaticParams.gamma);
+MargUt_inv = @(c) c.^(-1./StaticParams.gamma);
+wealth = StaticParams.wealth(bool_gb,StaticParams.KGrid,StaticParams.kGrid_pol);
+rate = repmat(StaticParams.rate(bool_gb,StaticParams.KGrid),[1,numel(StaticParams.kGrid_pol),1]);
 	
 while diffs(max(iter,1)) > StaticParams.criter_k/5
-   c_new(1,:,:) = min(preSol.wealth(2*bool_gb+1,:,:),u_der_inv(StaticParams.beta...
-				.*sum(repmat(P(1,:)',[1,length(StaticParams.kGrid_pol),length(preSol.KGrid)])...
-                .*(1-StaticParams.delta+preSol.rate(2*bool_gb+(1:2),:,:))...
-				.*u_der(fct_k(StaticParams.kGrid_pol,c,k_prime([1 1],:,:))),1)));
-   c_new(2,:,:) = min(preSol.wealth(2*bool_gb+2,:,:),u_der_inv(StaticParams.beta...
-				.*sum(repmat(P(2,:)',[1,length(StaticParams.kGrid_pol),length(preSol.KGrid)])...
-				.*(1-StaticParams.delta+preSol.rate(2*bool_gb+(1:2),:,:))...
-                .*u_der(fct_k(StaticParams.kGrid_pol,c,k_prime([2 2],:,:))),1)));
-   k_prime_new = max(StaticParams.k_min,preSol.wealth(2*bool_gb+(1:2),:,:)-c_new);
+   c_new(1,:,:) = max(0,min(wealth(1,:,:)-StaticParams.k_min,MargUt_inv(StaticParams.beta...
+				.*sum(repmat(P(1,:)',[1,length(StaticParams.kGrid_pol),length(StaticParams.KGrid)])...
+                      .*(1-StaticParams.delta+rate(1,:,:))...
+				      .*MargUt(fct_k(StaticParams.kGrid_pol,c,k_prime([1 1],:,:))),1))));
+   c_new(2,:,:) = max(0,min(wealth(2,:,:)-StaticParams.k_min,MargUt_inv(StaticParams.beta...
+				.*sum(repmat(P(2,:)',[1,length(StaticParams.kGrid_pol),length(StaticParams.KGrid)])...
+				      .*(1-StaticParams.delta+rate(2,:,:))...
+                      .*MargUt(fct_k(StaticParams.kGrid_pol,c,k_prime([2 2],:,:))),1))));
+   k_prime_new = max(StaticParams.k_min,wealth-c_new);
 
    iter = iter+1;
    diffs(iter) = max([max(max(squeeze(abs(k_prime_new(1,:,:)-k_prime(1,:,:))),[],2)),...

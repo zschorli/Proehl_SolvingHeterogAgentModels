@@ -176,7 +176,7 @@ dif_k=1;
    
    % Bad aggregate state and unemployed idiosyncratic state 
    
-     k2prime_bu=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,1,1),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'spline'); 
+     k2prime_bu=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,1,1),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'linear'); 
         % finding the individual policy function k''=k(k',km') by interpolating
         % the previously found policy function k'=k(k,km) in new points (k',km')
      cprime_bu=irate_b.*kprime+mu*(wage_b.*ones4)+(1-delta)*kprime-k2prime_bu; 
@@ -187,21 +187,21 @@ dif_k=1;
    
    % Bad aggregate state and employed idiosyncratic state
    
-     k2prime_be=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,1,2),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'spline');
+     k2prime_be=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,1,2),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'linear');
      cprime_be=irate_b.*kprime+wage_b.*(epsilon(2)*l_bar*ones4)+(1-delta)*kprime-mu*(wage_b.*((ur_b./(1-ur_b))*ones4))-k2prime_be;
      cprime_be=(cprime_be>0).*cprime_be+(cprime_be<=0)*10^-10;
      muprime_be=cprime_be.^(-gamma);
  
    % Good aggregate state and unemployed idiosyncratic state
    
-     k2prime_gu=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,2,1),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'spline');
+     k2prime_gu=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,2,1),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'linear');
      cprime_gu=irate_g.*kprime+mu*(wage_g.*ones4)+(1-delta)*kprime-k2prime_gu;
      cprime_gu=(cprime_gu>0).*cprime_gu+(cprime_gu<=0)*10^-10;
      muprime_gu=cprime_gu.^(-gamma);
    
    % Good aggregate state and employed idiosyncratic state
    
-     k2prime_ge=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,2,2),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'spline');
+     k2prime_ge=interpn(k,km,kvar,kskew,kkurt,kprime(:,:,:,:,:,2,2),kprime,kmprime,kvarprime,kskewprime,kkurtprime,'linear');
      cprime_ge=irate_g.*kprime+wage_g.*(epsilon(2)*l_bar*ones4)+(1-delta)*kprime-mu*(wage_g.*((ur_g./(1-ur_g))*ones4))-k2prime_ge;
      cprime_ge=(cprime_ge>0).*cprime_ge+(cprime_ge<=0)*10^-10;
      muprime_ge=cprime_ge.^(-gamma);
@@ -222,7 +222,7 @@ dif_k=1;
                     % restricting kprimen to be in [km_min,km_max] range 
    
   
-   dif_k=max(max(max(max(abs(kprimen-kprime))))); % difference between the 
+   dif_k=max(max(max(max(max(max(max(abs(kprimen-kprime)))))))); % difference between the 
                                        % new and previous capital functions
    
    kprime=update_k*kprimen+(1-update_k)*kprime; % updating kprimen (condition 

@@ -2,7 +2,7 @@
 % Heterogeneity and Aggregate Risk" by Elisabeth Pröhl
 %
 % AUTHOR Elisabeth Pröhl, University of Amsterdam
-% DATE October 2018
+% DATE May 2025
 %
 % DESCRIPTION
 % This function interpolates along the individual capital.
@@ -11,6 +11,7 @@
 function k = fct_k(kGrid_pol,k_prime,grid) 
 
 k = zeros(size(k_prime));
+
 for i=1:size(k_prime,3)
 for j=1:size(k_prime,1)
 	k(j,:,i) = interp1(kGrid_pol,squeeze(k_prime(j,:,i)),squeeze(grid(j,:,i)),'linear','extrap');

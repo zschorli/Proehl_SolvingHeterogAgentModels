@@ -25,7 +25,7 @@
 % __________________________________________________________________________
 clc;
 clear all;
-for case_nr=1:2
+for case_nr=1:3
 %__________________________________________________________________________
 %
 % Simulation method (stochastic and non-stochastic) 
@@ -59,14 +59,12 @@ switch case_nr
     case 1
         mu = 0.15;
     case 2
-        mu = 0.65;
-    case 3
-        mu = 0.05;
-    case 4
         mu = 0.4;
+    case 3
+        mu = 0.65;
 end
 l_bar=1/0.9;     % time endowment; normalizes labor supply to 1 in a bad state
-T=1100;          % simulation length
+T=3100;          % simulation length
 ndiscard=100;    % number of periods to discard
 
 nstates_id=2;    % number of states for the idiosyncratic shock
@@ -107,7 +105,7 @@ kss=((1/beta-(1-delta))/alpha)^(1/(alpha-1)); % steady-state capital in a
 % Grid for capital in the individual problem
 
 k_min=0;                   % minimum grid-value of capital
-k_max=450;%1000;                % maximum grid-value of capital
+% k_max=450;%1000;                % maximum grid-value of capital
 % ngridk=100;                % number of grid points
 % x=linspace(0,0.5,ngridk)'; % generate a grid of ngridk points on [0,0.5] 
 %                            % interval  
@@ -115,27 +113,23 @@ k_max=450;%1000;                % maximum grid-value of capital
 %                            % (7) in the paper
 % k=k_min+(k_max-k_min)*y;   % transformation of grid points from [0,0.5] 
 %                            % interval to [k_min,k_max] interval
-xgrid=linspace(0.5,15,45);      
-ygrid=(1-log(xgrid/xgrid(1))/log(xgrid(end)/xgrid(1))).^1.5; 
-ygrid=ygrid/max(ygrid);    
-bound = 2;   
-k = unique([linspace(k_min,bound,36),...
-            bound+(k_max-bound)*ygrid])';
+StaticParams = load(strcat('C:\Users\Elisabeth Proehl\Documents\GitHub\Proehl_SolvingHeterogAgentModels\Code\Proehl_GrowthModel\res_case',num2str(case_nr),'\StaticParams.mat'));
+k_max = StaticParams.kGrid_pol(end);
+k = StaticParams.kGrid_pol';
 ngridk = length(k);
 
 % Grid for mean of capital
-Sol = load(strcat('...\Proehl_GrowthModel\res_case',num2str(1),'\Sol1_PFI.mat'));
-km_min=Sol.distrGrid_min(1);%30;                           % minimum grid-value of the mean of 
+Sol = load(strcat('C:\Users\Elisabeth Proehl\Documents\GitHub\Proehl_SolvingHeterogAgentModels\Code\Proehl_GrowthModel\res_case',num2str(case_nr),'\Sol1_PFI.mat'));
+km_min=30;                           % minimum grid-value of the mean of 
                                      % capital distribution, km 
-km_max=Sol.distrGrid_max(1);%50;                           % maximum grid value of km
-ngridkm=Sol.idx(end,1);%9;                           % number of grid points for km 
+km_max=50;                           % maximum grid value of km
+ngridkm=2*Sol.idx(end,1);%9;                           % number of grid points for km 
 
 km=linspace(km_min,km_max,ngridkm)'; % generate a grid of ngridkm points on 
                                      % [km_min,km_max] interval 
-
-kvar_min=1;
-kvar_max=50;
-ngridkvar=Sol.idx(end,2);
+kvar_min=15;
+kvar_max=150;
+ngridkvar=2*Sol.idx(end,2);
 kvar=linspace(kvar_min,kvar_max,ngridkvar)';
 
 clear xgrid ygrid bound l u Sol;                                     
@@ -217,7 +211,7 @@ dif_B=10^10;   % difference between coefficients B of the the ALM on
 criter_k=5e-5;%1e-8; % convergence criterion for the individual capital function
 criter_B=5e-5;%1e-8; % convergence criterion for the coefficients B in the ALM
 update_k=0.6;%0.7;  % updating parameter for the individual capital function
-update_B=0.3;  % updating parameter for the coefficients B in the ALM
+update_B=0.2;  % updating parameter for the coefficients B in the ALM
 %__________________________________________________________________________
 %
 % SOLVING THE MODEL
