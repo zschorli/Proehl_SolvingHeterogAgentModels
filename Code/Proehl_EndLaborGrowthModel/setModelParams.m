@@ -17,7 +17,7 @@ if nargin>2
     StaticParams.mu = mu;
 else
     switch case_nr
-        case {1,2,14,19,21} 
+        case {1,2,14,19,21,29,31,39,41} 
             StaticParams.mu = 0.15;
         case {3,4}
             StaticParams.mu = 0.4;
@@ -25,12 +25,18 @@ else
             StaticParams.mu = 0.135;
         case 6
             StaticParams.mu = 0.165;
-        case {7,9,11,13,15,17,20}
+        case {7,9,11,13,15,17,20,25,27,30,35,37,40}
             StaticParams.mu = 0;
-        case {8,12,16,18}
+        case {8,12,16,18,26,28,36,38}
             StaticParams.mu = 0.015;
         case 10
             StaticParams.mu = 0.03; 
+        case {22,32,42}
+            StaticParams.mu = 0.0075; %StaticParams.mu = 0.3; 
+        case {23,33,43}
+            StaticParams.mu = 0.01;
+        case {24,34,44}
+            StaticParams.mu = 0.02;
     end
 end
 switch case_nr
@@ -38,14 +44,18 @@ switch case_nr
         StaticParams.mu_extra = 0.03;
     case {6,10}
         StaticParams.mu_extra = -0.03;
-    case {11,17}
+    case {11,17,27,37}
         StaticParams.mu_extra = 0.015;
-    case {12,18}
+    case {12,18,28,38}
         StaticParams.mu_extra = -0.015;
-    case {13,20}
+    case {13,20,30,40}
         StaticParams.mu_extra = 0.15;
-    case {14,21}
+    case {14,21,31,41}
         StaticParams.mu_extra = -0.15;
+    case {23,33,43}
+        StaticParams.mu_extra = 0.01;
+    case {24,34,44}
+        StaticParams.mu_extra = -0.01;
     otherwise
         StaticParams.mu_extra = 0;
 end
@@ -85,8 +95,16 @@ StaticParams.P_b = StaticParams.P(1:2,1:2)./repmat(sum(StaticParams.P(1:2,1:2),2
 %--------------------------------------------------------------------------      
 if case_nr<=14
     StaticParams.k_min = 0;          % minimum grid-value of individual capital
+    StaticParams.k_min2 = 0;
+elseif case_nr<=24 
+    StaticParams.k_min = -5;     
+    StaticParams.k_min2 = -5;        
+elseif case_nr>=35
+    StaticParams.k_min = -5;     
+    StaticParams.k_min2 = -4.5;   
 else
-    StaticParams.k_min = 20;        
+    StaticParams.k_min = 5;    
+    StaticParams.k2_min = 5;        
 end
 if StaticParams.rho == 0
     StaticParams.k_max = 100;
@@ -99,8 +117,7 @@ ygrid=(1-log(xgrid/xgrid(1))/log(xgrid(end)/xgrid(1))).^1.5;
 ygrid=ygrid/max(ygrid); 
 bound = StaticParams.k_min+0.2;
 StaticParams.kGrid_pol = unique(sort([linspace(StaticParams.k_min,bound,36),...
-                                 bound+(StaticParams.k_max-bound)*ygrid])); 
-
+                         bound+(StaticParams.k_max-bound)*ygrid])); 
 StaticParams.lu = 0.2;
 StaticParams.l_min = 0.25;
 

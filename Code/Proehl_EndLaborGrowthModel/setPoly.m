@@ -11,14 +11,13 @@
 function setPoly(StaticParams,folder,order,case_nr)
 
 % Load the solution of the model without aggregate risk
-
 switch case_nr
-    case {1,5,6,13,14,19,20,21}
-        count = 1;
-    case {2,3,4,7}
-        count = case_nr;
-    otherwise
-        count = 7;
+case {1,5,6,14,19,20,21,29,30,31}
+    count = 1;
+case {2,3,4,7}
+    count = case_nr;
+otherwise
+    count = 7;
 end
 preSol = load(strcat('res_case',num2str(count),'/preSol_PFI.mat'));
 

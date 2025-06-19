@@ -1,6 +1,6 @@
 The author agrees to make the Software accompanying the working paper 
 “Approximating Equilibria with Ex-Post Heterogeneity and Aggregate Risk” 
-by Elisabeth Proehl, (October 2018), available to you under the following 
+by Elisabeth Proehl, (June 2025), available to you under the following 
 conditions.
 
 1. Any work that contains some results derived from the software or a
@@ -9,7 +9,7 @@ conditions.
    a. provide a prominent description of the use of the software in the text; 
 
    a. cite the working paper “Approximating Equilibria with Ex-Post 
-      Heterogeneity and Aggregate Risk” by Elisabeth Proehl (October 2018).
+      Heterogeneity and Aggregate Risk” by Elisabeth Proehl (June 2025).
 
 2. The software and any modified version may be redistributed under the 
    terms of the present license agreement. Redistributions must include 

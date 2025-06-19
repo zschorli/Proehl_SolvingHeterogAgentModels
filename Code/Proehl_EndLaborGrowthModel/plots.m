@@ -186,19 +186,30 @@ title('Panel B')
 %--------------------------------------------------------------------------
 % Policy Experiment
 %--------------------------------------------------------------------------
-for case_nr = 15:20
+ct = num2cell(1:14);
+for case_nr = [1,3,5:24,35:44]
     folder = strcat('res_case',num2str(case_nr));
     StaticParams = load(strcat(folder,'/StaticParams.mat'));
-    Sol = load(strcat(folder,'/Sol3_PFI.mat'));
-    Poly = load(strcat(folder,'/Poly3_PFI.mat'));
+    switch case_nr
+        case {ct{:},15,17,18,35,37,38}
+            count = 3;
+        otherwise
+            count = 2;
+    end
+    Sol = load(strcat(folder,'/Sol',num2str(count),'_PFI.mat'));
+    Poly = load(strcat(folder,'/Poly',num2str(count),'_PFI.mat'));
     weights0 = calcWeights(Sol.cdf_cond(1:2,:),Poly,StaticParams,0);
     weights1 = calcWeights(Sol.cdf_cond(3:4,:),Poly,StaticParams,1);
-    c_prime0 = max(eps,interp1(StaticParams.kGrid_pol,squeeze(...
+    c_prime0 = max(0,interp1(StaticParams.kGrid_pol,squeeze(...
                       [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,1,:)),Sol.idx,weights0);...
                        getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,2,:)),Sol.idx,weights0)])',StaticParams.kGrid)');
-    c_prime1 = max(eps,interp1(StaticParams.kGrid_pol,squeeze(...
+    c_prime0(c_prime0<eps^2) = 0;
+    c_prime0(Sol.pdf_cond(1:2,:)==0) = max(eps,c_prime0(Sol.pdf_cond(1:2,:)==0));
+    c_prime1 = max(0,interp1(StaticParams.kGrid_pol,squeeze(...
                       [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,3,:)),Sol.idx,weights1);...
                        getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,4,:)),Sol.idx,weights1)])',StaticParams.kGrid)');
+    c_prime1(Sol.pdf_cond(3:4,:)==0) = max(eps,c_prime1(Sol.pdf_cond(3:4,:)==0));
+    c_prime1(c_prime1<eps^2) = 0;
     l_prime0 = min(1-eps,interp1(StaticParams.kGrid_pol,squeeze(...
                       [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,1,:)),Sol.idx,weights0);...
                        getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,2,:)),Sol.idx,weights0)])',StaticParams.kGrid)');
@@ -210,52 +221,55 @@ for case_nr = 15:20
     if StaticParams.gamma==1
         ut0 = log(aggregator0);
         ut1 = log(aggregator1);
+        ut0_b = log(max(eps^20,aggregator0));
+        ut1_b = log(max(eps^20,aggregator1));
     else
         ut0 = (aggregator0).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
         ut1 = (aggregator1).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
+        ut0_b = (max(eps^20,aggregator0)).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
+        ut1_b = (max(eps^20,aggregator1)).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
     end
     Sol.agC = [sum(c_prime0.*Sol.pdf_cond(1:2,:),2)',...
                sum(c_prime1.*Sol.pdf_cond(3:4,:),2)'];
     Sol.agWelfare = [sum(ut0.*Sol.pdf_cond(1:2,:),2)',...
                      sum(ut1.*Sol.pdf_cond(3:4,:),2)'];
-    save(strcat(folder,'/Sol3_PFI.mat'),'-struct','Sol'); 
+    Sol.agWelfare_b = [sum(ut0_b.*Sol.pdf_cond(1:2,:),2)',...
+                       sum(ut1_b.*Sol.pdf_cond(3:4,:),2)'];
+    save(strcat(folder,'/Sol',num2str(count),'_PFI.mat'),'-struct','Sol'); 
 end 
 
-Sol3 = load(strcat('res_case3','/Sol3_PFI.mat'));
+Sol1 = load(strcat('res_case1','/Sol3_PFI.mat'));
 Sol5 = load(strcat('res_case5','/Sol3_PFI.mat'));
 Sol6 = load(strcat('res_case6','/Sol3_PFI.mat'));
 Sol7 = load(strcat('res_case7','/Sol3_PFI.mat'));
-% Sol8 = load(strcat('res_case8','/Sol3_PFI.mat'));
-% Sol9 = load(strcat('res_case9','/Sol3_PFI.mat'));
-% Sol10 = load(strcat('res_case10','/Sol3_PFI.mat'));
 Sol11 = load(strcat('res_case11','/Sol3_PFI.mat'));
 Sol12 = load(strcat('res_case12','/Sol3_PFI.mat'));
+Sol15 = load(strcat('res_case35','/Sol3_PFI.mat'));
+Sol17 = load(strcat('res_case37','/Sol3_PFI.mat'));
+Sol18 = load(strcat('res_case38','/Sol3_PFI.mat'));
 
-Sol15 = load(strcat('res_case15','/Sol3_PFI.mat'));
-Sol16 = load(strcat('res_case16','/Sol3_PFI.mat'));
-Sol17 = load(strcat('res_case17','/Sol3_PFI.mat'));
-Sol18 = load(strcat('res_case18','/Sol3_PFI.mat'));
-Sol19 = load(strcat('res_case19','/Sol3_PFI.mat'));
-Sol20 = load(strcat('res_case20','/Sol3_PFI.mat'));
-
-StaticParams = load(strcat('res_case3','/StaticParams.mat'));
+StaticParams = load(strcat('res_case1','/StaticParams.mat'));
+StaticParamsCC = load(strcat('res_case35','/StaticParams.mat'));
 
 pL = StaticParams.p;
 pL([1,3])=0;
 pL = pL./sum(pL);
 
-N=6*4;
+N=9*4;
 Output = zeros(15,N);
 
 % aggregate capital
-Output(1,1:4:N) = [(StaticParams.kGrid*(StaticParams.p'*Sol3.pdf_cond)'),...
+Output(1,1:4:N) = [(StaticParams.kGrid*(StaticParams.p'*Sol1.pdf_cond)'),...
      (StaticParams.kGrid*(StaticParams.p'*Sol5.pdf_cond)'),...
      (StaticParams.kGrid*(StaticParams.p'*Sol6.pdf_cond)'),...
      (StaticParams.kGrid*(StaticParams.p'*Sol7.pdf_cond)'),...
      (StaticParams.kGrid*(StaticParams.p'*Sol11.pdf_cond)'),...
-     (StaticParams.kGrid*(StaticParams.p'*Sol12.pdf_cond)')];
-Output(2,1:2:N) = [(StaticParams.kGrid*(StaticParams.p(1:2)'*Sol3.pdf_cond(1:2,:))')./sum(StaticParams.p(1:2)),...
-     (StaticParams.kGrid*(StaticParams.p(3:4)'*Sol3.pdf_cond(3:4,:))')./sum(StaticParams.p(3:4)),...
+     (StaticParams.kGrid*(StaticParams.p'*Sol12.pdf_cond)'),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p'*Sol15.pdf_cond)'),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p'*Sol17.pdf_cond)'),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p'*Sol18.pdf_cond)')];
+Output(2,1:2:N) = [(StaticParams.kGrid*(StaticParams.p(1:2)'*Sol1.pdf_cond(1:2,:))')./sum(StaticParams.p(1:2)),...
+     (StaticParams.kGrid*(StaticParams.p(3:4)'*Sol1.pdf_cond(3:4,:))')./sum(StaticParams.p(3:4)),...
      (StaticParams.kGrid*(StaticParams.p(1:2)'*Sol5.pdf_cond(1:2,:))')./sum(StaticParams.p(1:2)),...
      (StaticParams.kGrid*(StaticParams.p(3:4)'*Sol5.pdf_cond(3:4,:))')./sum(StaticParams.p(3:4)),...
      (StaticParams.kGrid*(StaticParams.p(1:2)'*Sol6.pdf_cond(1:2,:))')./sum(StaticParams.p(1:2)),...
@@ -265,23 +279,35 @@ Output(2,1:2:N) = [(StaticParams.kGrid*(StaticParams.p(1:2)'*Sol3.pdf_cond(1:2,:
      (StaticParams.kGrid*(StaticParams.p(1:2)'*Sol11.pdf_cond(1:2,:))')./sum(StaticParams.p(1:2)),...
      (StaticParams.kGrid*(StaticParams.p(3:4)'*Sol11.pdf_cond(3:4,:))')./sum(StaticParams.p(3:4)),...
      (StaticParams.kGrid*(StaticParams.p(1:2)'*Sol12.pdf_cond(1:2,:))')./sum(StaticParams.p(1:2)),...
-     (StaticParams.kGrid*(StaticParams.p(3:4)'*Sol12.pdf_cond(3:4,:))')./sum(StaticParams.p(3:4))];
-Output(3,:) = [(StaticParams.kGrid*Sol3.pdf_cond'),...
+     (StaticParams.kGrid*(StaticParams.p(3:4)'*Sol12.pdf_cond(3:4,:))')./sum(StaticParams.p(3:4)),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p(1:2)'*Sol15.pdf_cond(1:2,:))')./sum(StaticParamsCC.p(1:2)),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p(3:4)'*Sol15.pdf_cond(3:4,:))')./sum(StaticParamsCC.p(3:4)),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p(1:2)'*Sol17.pdf_cond(1:2,:))')./sum(StaticParamsCC.p(1:2)),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p(3:4)'*Sol17.pdf_cond(3:4,:))')./sum(StaticParamsCC.p(3:4)),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p(1:2)'*Sol18.pdf_cond(1:2,:))')./sum(StaticParamsCC.p(1:2)),...
+     (StaticParamsCC.kGrid*(StaticParamsCC.p(3:4)'*Sol18.pdf_cond(3:4,:))')./sum(StaticParamsCC.p(3:4))];
+Output(3,:) = [(StaticParams.kGrid*Sol1.pdf_cond'),...
      (StaticParams.kGrid*Sol5.pdf_cond'),...
      (StaticParams.kGrid*Sol6.pdf_cond'),...
      (StaticParams.kGrid*Sol7.pdf_cond'),...
      (StaticParams.kGrid*Sol11.pdf_cond'),...
-     (StaticParams.kGrid*Sol12.pdf_cond')];
+     (StaticParams.kGrid*Sol12.pdf_cond'),...
+     (StaticParamsCC.kGrid*Sol15.pdf_cond'),...
+     (StaticParamsCC.kGrid*Sol17.pdf_cond'),...
+     (StaticParamsCC.kGrid*Sol18.pdf_cond')];
      
 % labor supply
-Output(4,1:4:N) = [(StaticParams.lGrid*(pL'*Sol3.pdf_cond_l)'),...
+Output(4,1:4:N) = [(StaticParams.lGrid*(pL'*Sol1.pdf_cond_l)'),...
      (StaticParams.lGrid*(pL'*Sol5.pdf_cond_l)'),...
      (StaticParams.lGrid*(pL'*Sol6.pdf_cond_l)'),...
      (StaticParams.lGrid*(pL'*Sol7.pdf_cond_l)'),...
      (StaticParams.lGrid*(pL'*Sol11.pdf_cond_l)'),...
-     (StaticParams.lGrid*(pL'*Sol12.pdf_cond_l)')];
-Output(5,1:2:N) = [(StaticParams.lGrid*(pL(1:2)'*Sol3.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
-     (StaticParams.lGrid*(pL(3:4)'*Sol3.pdf_cond_l(3:4,:))')./sum(pL(3:4)),...
+     (StaticParams.lGrid*(pL'*Sol12.pdf_cond_l)'),...
+     (StaticParamsCC.lGrid*(pL'*Sol15.pdf_cond_l)'),...
+     (StaticParamsCC.lGrid*(pL'*Sol17.pdf_cond_l)'),...
+     (StaticParamsCC.lGrid*(pL'*Sol18.pdf_cond_l)')];
+Output(5,1:2:N) = [(StaticParams.lGrid*(pL(1:2)'*Sol1.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
+     (StaticParams.lGrid*(pL(3:4)'*Sol1.pdf_cond_l(3:4,:))')./sum(pL(3:4)),...
      (StaticParams.lGrid*(pL(1:2)'*Sol5.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
      (StaticParams.lGrid*(pL(3:4)'*Sol5.pdf_cond_l(3:4,:))')./sum(pL(3:4)),...
      (StaticParams.lGrid*(pL(1:2)'*Sol6.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
@@ -291,7 +317,13 @@ Output(5,1:2:N) = [(StaticParams.lGrid*(pL(1:2)'*Sol3.pdf_cond_l(1:2,:))')./sum(
      (StaticParams.lGrid*(pL(1:2)'*Sol11.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
      (StaticParams.lGrid*(pL(3:4)'*Sol11.pdf_cond_l(3:4,:))')./sum(pL(3:4)),...
      (StaticParams.lGrid*(pL(1:2)'*Sol12.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
-     (StaticParams.lGrid*(pL(3:4)'*Sol12.pdf_cond_l(3:4,:))')./sum(pL(3:4))];  
+     (StaticParams.lGrid*(pL(3:4)'*Sol12.pdf_cond_l(3:4,:))')./sum(pL(3:4)),...
+     (StaticParamsCC.lGrid*(pL(1:2)'*Sol15.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
+     (StaticParamsCC.lGrid*(pL(3:4)'*Sol15.pdf_cond_l(3:4,:))')./sum(pL(3:4)),...
+     (StaticParamsCC.lGrid*(pL(1:2)'*Sol17.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
+     (StaticParamsCC.lGrid*(pL(3:4)'*Sol17.pdf_cond_l(3:4,:))')./sum(pL(3:4)),...
+     (StaticParamsCC.lGrid*(pL(1:2)'*Sol18.pdf_cond_l(1:2,:))')./sum(pL(1:2)),...
+     (StaticParamsCC.lGrid*(pL(3:4)'*Sol18.pdf_cond_l(3:4,:))')./sum(pL(3:4))];  
 
 % output
 Output(7,1:4:N) = StaticParams.output(0,Output(2,1:4:N),Output(5,1:4:N));
@@ -305,59 +337,314 @@ aux = Output(9,1:2:N);
 Output(8,1:4:N) = 0.5.*(aux(1:2:N/2)+aux(2:2:N/2));
 
 % consumption
-Output(10,1:4:N) = [Sol3.agC*StaticParams.p,Sol5.agC*StaticParams.p,Sol6.agC*StaticParams.p,...
-                    Sol7.agC*StaticParams.p,Sol11.agC*StaticParams.p,Sol12.agC*StaticParams.p];
-Output(11,1:2:N) = 2.*[Sol3.agC(1:2)*StaticParams.p(1:2),Sol3.agC(3:4)*StaticParams.p(3:4),...
+Output(10,1:4:N) = [Sol1.agC*StaticParams.p,Sol5.agC*StaticParams.p,Sol6.agC*StaticParams.p,...
+                    Sol7.agC*StaticParams.p,Sol11.agC*StaticParams.p,Sol12.agC*StaticParams.p,...
+                    Sol15.agC*StaticParamsCC.p,Sol17.agC*StaticParamsCC.p,Sol18.agC*StaticParamsCC.p];
+Output(11,1:2:N) = 2.*[Sol1.agC(1:2)*StaticParams.p(1:2),Sol1.agC(3:4)*StaticParams.p(3:4),...
                      Sol5.agC(1:2)*StaticParams.p(1:2),Sol5.agC(3:4)*StaticParams.p(3:4),...
                      Sol6.agC(1:2)*StaticParams.p(1:2),Sol6.agC(3:4)*StaticParams.p(3:4),...
                      Sol7.agC(1:2)*StaticParams.p(1:2),Sol7.agC(3:4)*StaticParams.p(3:4),...
                      Sol11.agC(1:2)*StaticParams.p(1:2),Sol11.agC(3:4)*StaticParams.p(3:4),...
-                     Sol12.agC(1:2)*StaticParams.p(1:2),Sol12.agC(3:4)*StaticParams.p(3:4)];
-Output(12,:) = [Sol3.agC,Sol5.agC,Sol6.agC,...
-                Sol7.agC,Sol11.agC,Sol12.agC];
+                     Sol12.agC(1:2)*StaticParams.p(1:2),Sol12.agC(3:4)*StaticParams.p(3:4),...
+                     Sol15.agC(1:2)*StaticParamsCC.p(1:2),Sol15.agC(3:4)*StaticParamsCC.p(3:4),...
+                     Sol17.agC(1:2)*StaticParamsCC.p(1:2),Sol17.agC(3:4)*StaticParamsCC.p(3:4),...
+                     Sol18.agC(1:2)*StaticParamsCC.p(1:2),Sol18.agC(3:4)*StaticParamsCC.p(3:4)];
+Output(12,:) = [Sol1.agC,Sol5.agC,Sol6.agC,...
+                Sol7.agC,Sol11.agC,Sol12.agC,...
+                Sol15.agC,Sol17.agC,Sol18.agC];
 
 % welfare
-Output(13,1:4:N) = [Sol3.agWelfare*StaticParams.p,...
+Output(13,1:4:N) = [Sol1.agWelfare*StaticParams.p,...
                     Sol5.agWelfare*StaticParams.p,...
                     Sol6.agWelfare*StaticParams.p,...
                     Sol7.agWelfare*StaticParams.p,...
                     Sol11.agWelfare*StaticParams.p,...
-                    Sol12.agWelfare*StaticParams.p];
-Output(14,1:2:N) = 2.*[Sol3.agWelfare(1:2)*StaticParams.p(1:2),Sol3.agWelfare(3:4)*StaticParams.p(3:4),...
+                    Sol12.agWelfare*StaticParams.p,...
+                    Sol15.agWelfare*StaticParamsCC.p,...
+                    Sol17.agWelfare*StaticParamsCC.p,...
+                    Sol18.agWelfare*StaticParamsCC.p];
+Output(14,1:2:N) = 2.*[Sol1.agWelfare(1:2)*StaticParams.p(1:2),Sol1.agWelfare(3:4)*StaticParams.p(3:4),...
                      Sol5.agWelfare(1:2)*StaticParams.p(1:2),Sol5.agWelfare(3:4)*StaticParams.p(3:4),...
                      Sol6.agWelfare(1:2)*StaticParams.p(1:2),Sol6.agWelfare(3:4)*StaticParams.p(3:4),...
                      Sol7.agWelfare(1:2)*StaticParams.p(1:2),Sol7.agWelfare(3:4)*StaticParams.p(3:4),...
                      Sol11.agWelfare(1:2)*StaticParams.p(1:2),Sol11.agWelfare(3:4)*StaticParams.p(3:4),...
-                     Sol12.agWelfare(1:2)*StaticParams.p(1:2),Sol12.agWelfare(3:4)*StaticParams.p(3:4)];
-Output(15,:) = [Sol3.agWelfare,Sol5.agWelfare,Sol6.agWelfare,...
-                Sol7.agWelfare,Sol11.agWelfare,Sol12.agWelfare];
+                     Sol12.agWelfare(1:2)*StaticParams.p(1:2),Sol12.agWelfare(3:4)*StaticParams.p(3:4),...
+                     Sol15.agWelfare(1:2)*StaticParamsCC.p(1:2),Sol15.agWelfare(3:4)*StaticParamsCC.p(3:4),...
+                     Sol17.agWelfare(1:2)*StaticParamsCC.p(1:2),Sol17.agWelfare(3:4)*StaticParamsCC.p(3:4),...
+                     Sol18.agWelfare(1:2)*StaticParamsCC.p(1:2),Sol18.agWelfare(3:4)*StaticParamsCC.p(3:4)];
+Output(15,:) = [Sol1.agWelfare,Sol5.agWelfare,Sol6.agWelfare,...
+                Sol7.agWelfare,Sol11.agWelfare,Sol12.agWelfare,...
+                Sol15.agWelfare,Sol17.agWelfare,Sol18.agWelfare];
 % derivatives
-Output([1,4,6,8,10,13],6)=(Output([1,4,6,8,10,13],5)-Output([1,4,6,8,10,13],1))/norm(0.01*ones(1,2));
-Output([1,4,6,8,10,13],10)=(Output([1,4,6,8,10,13],9)-Output([1,4,6,8,10,13],1))/norm(0.01*ones(1,2));
-Output([1,4,6,8,10,13],18)=(Output([1,4,6,8,10,13],17)-Output([1,4,6,8,10,13],13))/norm(0.01*ones(1,2));
-Output([1,4,6,8,10,13],22)=(Output([1,4,6,8,10,13],21)-Output([1,4,6,8,10,13],13))/norm(0.01*ones(1,2));
+Output([1,4,6,8,10,13],6)=(Output([1,4,6,8,10,13],5)-Output([1,4,6,8,10,13],1))/norm(0.015*[1,1]);
+Output([1,4,6,8,10,13],10)=(Output([1,4,6,8,10,13],9)-Output([1,4,6,8,10,13],1))/norm(0.015*[1,1]);
+Output([1,4,6,8,10,13],18)=(Output([1,4,6,8,10,13],17)-Output([1,4,6,8,10,13],13))/norm(0.015*[1,0]);
+Output([1,4,6,8,10,13],22)=(Output([1,4,6,8,10,13],21)-Output([1,4,6,8,10,13],13))/norm(0.015*[0,1]);
+Output([1,4,6,8,10,13],30)=(Output([1,4,6,8,10,13],29)-Output([1,4,6,8,10,13],25))/norm(0.015*[1,0]);
+Output([1,4,6,8,10,13],34)=(Output([1,4,6,8,10,13],33)-Output([1,4,6,8,10,13],25))/norm(0.015*[0,1]);
 
-% Fit welfare function to 10 computed values, x grid: benfit in boom, 
+%--------------------------------------------------------------------------
+% Fit welfare function to computed values, x grid: benfit in boom, 
 % y grid: benefit in recession
-x = zeros(10,1);
-y = zeros(10,1);
-w = zeros(10,1);
-count = 0;
-for case_nr=[1,3,5:12]
-    count = count+1;
+%--------------------------------------------------------------------------
+% case \bar{k}=0, 12 data points (folders 1,3,5:14)
+%--------------------------------------------------------
+fol = [1,3,5:14];
+x = zeros(length(fol),1);
+y = zeros(length(fol),1);
+w = zeros(length(fol),1);
+data_count = 0;
+for case_nr=fol
+    data_count = data_count+1;
     folder = strcat('res_case',num2str(case_nr));
     StaticParams = load(strcat(folder,'/StaticParams.mat'));
-    Sol = load(strcat(folder,'/Sol3_PFI.mat'));
-    x(count) = StaticParams.mu;
-    y(count) = StaticParams.mu+StaticParams.mu_extra;
-    w(count) = Sol.agWelfare*StaticParams.p;
+    switch case_nr
+        case {ct{:}}
+            count = 3;
+        otherwise
+            count = 2;
+    end
+    Sol = load(strcat(folder,'/Sol',num2str(count),'_PFI.mat'));
+    x(data_count) = StaticParams.mu;
+    y(data_count) = StaticParams.mu+StaticParams.mu_extra;
+    w(data_count) = Sol.agWelfare*StaticParams.p;
 end
-A = [ones(10,1),x,y,x.^2,y.^2,x.*y,x.^3,y.^3,x.*y.^2,x.^2.*y];
-coeffs = linsolve(A,w);
-welfareFct = @(x,y) coeffs(1)+coeffs(2).*x+coeffs(3).*y+coeffs(4).*x.^2 ...
-                   +coeffs(5).*y.^2+coeffs(6).*x.*y+coeffs(7).*x.^3 ...
-                   +coeffs(8).*y.^3+coeffs(9).*x.*y.^2+coeffs(10).*x.^2.*y; 
-grid = linspace(0,0.5,51)';
-[X,Y] = ndgrid(grid,grid);
-Z = welfareFct(X,Y);
-surf(X,Y,Z)
+[X,Y] = ndgrid(unique(x),unique(y));
+Z = zeros(size(Y));
+% fill with computed welfare values
+for i=1:length(w)
+    Z(logical((X==x(i)).*(Y==y(i))))=w(i);
+end
+% then interpolate along diagonal (acyclical policies)
+ind = sub2ind(size(Z),1:size(Z,1),1:size(Z,2));
+bool = Z(ind)>=0;
+Z(ind(logical(bool))) = interp1(Y(ind(logical(1-bool))),Z(ind(logical(1-bool))),Y(ind(logical(bool))),'linear','extrap');
+% then interpolate the rest
+Z(1,Z(1,:)==0) = interp1(Y(1,Z(1,:)<0),Z(1,Z(1,:)<0),Y(1,Z(1,:)==0),'linear','extrap');
+Z(Z(:,1)==0,1) = interp1(X(Z(:,1)<0,1),Z(Z(:,1)<0,1),X(Z(:,1)==0,1),'linear','extrap');
+Z(end,Z(end,:)==0) = interp1(Y(end,Z(end,:)<0),Z(end,Z(end,:)<0),Y(end,Z(end,:)==0),'linear','extrap');
+Z(Z(:,end)==0,end) = interp1(X(Z(:,end)<0,end),Z(Z(:,end)<0,end),X(Z(:,end)==0,end),'linear','extrap');
+Z1 = Z;
+Z2 = Z;
+for i=2:size(Z,1)-1
+    Z1(i,Z(i,:)==0) = interp1(Y(i,Z1(i,:)<0),Z1(i,Z1(i,:)<0),Y(i,Z1(i,:)==0),'linear','extrap');
+end
+for i=2:size(Z,2)-1
+    Z2(Z2(:,i)==0,i) = interp1(X(Z2(:,i)<0,i),Z2(Z2(:,i)<0,i),X(Z2(:,i)==0,i),'linear','extrap');
+end
+Z = 0.5.*(Z1+Z2);
+[X_large,Y_large] = ndgrid(linspace(0,0.15,101),linspace(0,0.15,101));
+Z_large = interpn(unique(x),unique(y),Z,X_large,Y_large);
+
+
+%--------------------------------------------------------
+for case_nr = [15,17,18,35,37,38]
+    folder = strcat('res_case',num2str(case_nr));
+    StaticParams = load(strcat(folder,'/StaticParams.mat'));
+    count = 2;
+    Sol = load(strcat(folder,'/Sol',num2str(count),'_PFI.mat'));
+    Poly = load(strcat(folder,'/Poly',num2str(count),'_PFI.mat'));
+    weights0 = calcWeights(Sol.cdf_cond(1:2,:),Poly,StaticParams,0);
+    weights1 = calcWeights(Sol.cdf_cond(3:4,:),Poly,StaticParams,1);
+    c_prime0 = max(0,interp1(StaticParams.kGrid_pol,squeeze(...
+                      [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,1,:)),Sol.idx,weights0);...
+                       getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,2,:)),Sol.idx,weights0)])',StaticParams.kGrid)');
+    c_prime0(c_prime0<eps^2) = 0;
+    c_prime0(Sol.pdf_cond(1:2,:)==0) = max(eps,c_prime0(Sol.pdf_cond(1:2,:)==0));
+    c_prime1 = max(0,interp1(StaticParams.kGrid_pol,squeeze(...
+                      [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,3,:)),Sol.idx,weights1);...
+                       getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.c(:,4,:)),Sol.idx,weights1)])',StaticParams.kGrid)');
+    c_prime1(Sol.pdf_cond(3:4,:)==0) = max(eps,c_prime1(Sol.pdf_cond(3:4,:)==0));
+    c_prime1(c_prime1<eps^2) = 0;
+    l_prime0 = min(1-eps,interp1(StaticParams.kGrid_pol,squeeze(...
+                      [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,1,:)),Sol.idx,weights0);...
+                       getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,2,:)),Sol.idx,weights0)])',StaticParams.kGrid)');
+    l_prime1 = min(1-eps,interp1(StaticParams.kGrid_pol,squeeze(...
+                      [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,3,:)),Sol.idx,weights1);...
+                       getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,4,:)),Sol.idx,weights1)])',StaticParams.kGrid)');
+    aggregator0 = c_prime0.^StaticParams.theta.*(1-l_prime0).^(1-StaticParams.theta);
+    aggregator1 = c_prime1.^StaticParams.theta.*(1-l_prime1).^(1-StaticParams.theta);
+    if StaticParams.gamma==1
+        ut0 = log(aggregator0);
+        ut1 = log(aggregator1);
+        ut0_b = log(max(eps^20,aggregator0));
+        ut1_b = log(max(eps^20,aggregator1));
+    else
+        ut0 = (aggregator0).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
+        ut1 = (aggregator1).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
+        ut0_b = (max(eps^20,aggregator0)).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
+        ut1_b = (max(eps^20,aggregator1)).^(1-StaticParams.gamma)./(1-StaticParams.gamma);
+    end
+    Sol.agC = [sum(c_prime0.*Sol.pdf_cond(1:2,:),2)',...
+               sum(c_prime1.*Sol.pdf_cond(3:4,:),2)'];
+    Sol.agWelfare = [sum(ut0.*Sol.pdf_cond(1:2,:),2)',...
+                     sum(ut1.*Sol.pdf_cond(3:4,:),2)'];
+    Sol.agWelfare_b = [sum(ut0_b.*Sol.pdf_cond(1:2,:),2)',...
+                       sum(ut1_b.*Sol.pdf_cond(3:4,:),2)'];
+    save(strcat(folder,'/Sol',num2str(count),'_PFI.mat'),'-struct','Sol'); 
+end 
+
+% case \bar{k}=-5, 10 data points (folders 15:24)
+%--------------------------------------------------------
+fol = 15:24;
+x = zeros(length(fol),1);
+y = zeros(length(fol),1);
+w = zeros(length(fol),1);
+w_b = zeros(length(fol),1);
+data_count = 0;
+for case_nr=fol
+    data_count = data_count+1;
+    folder = strcat('res_case',num2str(case_nr));
+    StaticParams = load(strcat(folder,'/StaticParams.mat'));
+    switch case_nr
+        case {ct{:}}
+            count = 3;
+        otherwise
+            count = 2;
+    end
+    Sol = load(strcat(folder,'/Sol',num2str(count),'_PFI.mat'));
+    x(data_count) = StaticParams.mu;
+    y(data_count) = StaticParams.mu+StaticParams.mu_extra;
+    w(data_count) = Sol.agWelfare*StaticParams.p;
+    w_b(data_count) = Sol.agWelfare_b*StaticParams.p;
+end
+[Xcc,Ycc] = ndgrid(unique(x),unique(y));
+Zcc = zeros(size(Ycc));
+Zcc_interp = zeros(size(Ycc));
+% fill with computed welfare values
+for i=1:length(w)
+    Zcc(logical((Xcc==x(i)).*(Ycc==y(i))))=w(i);
+    Zcc_interp(logical((Xcc==x(i)).*(Ycc==y(i))))=w_b(i);
+end
+% then interpolate along diagonal (acyclical policies)
+ind = sub2ind(size(Zcc),1:size(Zcc,1),1:size(Zcc,2));
+bool = Zcc(ind)>=0;
+Zcc_interp(ind(logical(bool))) = interp1(Ycc(ind(logical(1-bool))),Zcc_interp(ind(logical(1-bool))),Ycc(ind(logical(bool))),'linear','extrap');
+Zcc(ind(logical(bool))) = Zcc_interp(ind(logical(bool)));
+% then interpolate the rest
+Zcc(1,Zcc(1,:)==0) = interp1(Ycc(1,Zcc(1,:)<0),Zcc(1,Zcc(1,:)<0),Ycc(1,Zcc(1,:)==0),'linear','extrap');
+Zcc(Zcc(:,1)==0,1) = interp1(Xcc(Zcc(:,1)<0,1),Zcc(Zcc(:,1)<0,1),Xcc(Zcc(:,1)==0,1),'linear','extrap');
+Zcc_interp(1,Zcc_interp(1,:)==0) = interp1(Ycc(1,Zcc_interp(1,:)<0),Zcc_interp(1,Zcc_interp(1,:)<0),Ycc(1,Zcc_interp(1,:)==0),'linear','extrap');
+Zcc_interp(Zcc_interp(:,1)==0,1) = interp1(Xcc(Zcc_interp(:,1)<0,1),Zcc_interp(Zcc_interp(:,1)<0,1),Xcc(Zcc_interp(:,1)==0,1),'linear','extrap');
+Zcc_interp(end,Zcc_interp(end,:)==0) = interp1(Ycc(end,Zcc_interp(end,:)<0),Zcc_interp(end,Zcc_interp(end,:)<0),Ycc(end,Zcc_interp(end,:)==0),'linear','extrap');
+Zcc(end,Zcc(end,:)==0) = Zcc_interp(end,Zcc(end,:)==0);
+Zcc_interp(Zcc_interp(:,end)==0,end) = interp1(Xcc(Zcc_interp(:,end)<0,end),Zcc_interp(Zcc_interp(:,end)<0,end),Xcc(Zcc_interp(:,end)==0,end),'linear','extrap');
+Zcc(Zcc(:,end)==0,end) = Zcc_interp(Zcc(:,end)==0,end);
+Z1 = Zcc_interp;
+Z2 = Zcc_interp;
+for i=2:size(Zcc,1)-1
+    Z1(i,Z1(i,:)==0) = interp1(Ycc(i,Zcc_interp(i,:)<0),Zcc_interp(i,Zcc_interp(i,:)<0),Ycc(i,Zcc_interp(i,:)==0),'linear','extrap');
+end
+for i=2:size(Zcc,2)-1
+    Z2(Z2(:,i)==0,i) = interp1(Xcc(Zcc_interp(:,i)<0,i),Zcc_interp(Zcc_interp(:,i)<0,i),Xcc(Zcc_interp(:,i)==0,i),'linear','extrap');
+end
+Zcc_interp = 0.5.*(Z1+Z2);
+Zcc(Zcc==0) = Zcc_interp(Zcc==0);
+[Xcc_large,Ycc_large] = ndgrid(linspace(0,0.15,101),linspace(0,0.15,101));
+Zcc_large = interpn(unique(x),unique(y),max(log(eps^20),Zcc),Xcc_large,Ycc_large,'linear');
+
+% case \bar{k}=-5(recession)/-4.5(boom), 10 data points (folders 35:44)
+%--------------------------------------------------------
+fol = 35:44;
+x = zeros(length(fol),1);
+y = zeros(length(fol),1);
+w = zeros(length(fol),1);
+w_b = zeros(length(fol),1);
+data_count = 0;
+for case_nr=fol
+    data_count = data_count+1;
+    folder = strcat('res_case',num2str(case_nr));
+    StaticParams = load(strcat(folder,'/StaticParams.mat'));
+    switch case_nr
+        case {ct{:}}
+            count = 3;
+        otherwise
+            count = 2;
+    end
+    Sol = load(strcat(folder,'/Sol',num2str(count),'_PFI.mat'));
+    x(data_count) = StaticParams.mu;
+    y(data_count) = StaticParams.mu+StaticParams.mu_extra;
+    w(data_count) = Sol.agWelfare*StaticParams.p;
+    w_b(data_count) = Sol.agWelfare_b*StaticParams.p;
+end
+[Xcc2,Ycc2] = ndgrid(unique(x),unique(y));
+Zcc2 = zeros(size(Ycc2));
+Zcc2_interp = zeros(size(Ycc2));
+% fill with computed welfare values
+for i=1:length(w)
+    Zcc2(logical((Xcc2==x(i)).*(Ycc2==y(i))))=w(i);
+    Zcc2_interp(logical((Xcc2==x(i)).*(Ycc2==y(i))))=w_b(i);
+end
+% then interpolate along diagonal (acyclical policies)
+ind = sub2ind(size(Zcc2),1:size(Zcc2,1),1:size(Zcc2,2));
+bool = Zcc2(ind)>=0;
+Zcc2_interp(ind(logical(bool))) = interp1(Ycc2(ind(logical(1-bool))),Zcc2_interp(ind(logical(1-bool))),Ycc2(ind(logical(bool))),'linear','extrap');
+Zcc2(ind(logical(bool))) = Zcc2_interp(ind(logical(bool)));
+% then interpolate the rest
+Zcc2_interp(1,Zcc2_interp(1,:)==0) = interp1(Ycc2(1,Zcc2_interp(1,:)<0),Zcc2_interp(1,Zcc2_interp(1,:)<0),Ycc2(1,Zcc2_interp(1,:)==0),'linear','extrap');
+Zcc2_interp(Zcc2_interp(:,1)==0,1) = interp1(Xcc2(Zcc2_interp(:,1)<0,1),Zcc2_interp(Zcc2_interp(:,1)<0,1),Xcc2(Zcc2_interp(:,1)==0,1),'linear','extrap');
+Zcc2(1,Zcc2(1,:)==0) = Zcc2_interp(1,Zcc2(1,:)==0);
+Zcc2(Zcc2(:,1)==0,1) = interp1(Xcc2(Zcc2(:,1)<0,1),Zcc2(Zcc2(:,1)<0,1),Xcc2(Zcc2(:,1)==0,1),'linear','extrap');
+Zcc2_interp(end,Zcc2_interp(end,:)==0) = interp1(Ycc2(end,Zcc2_interp(end,:)<0),Zcc2_interp(end,Zcc2_interp(end,:)<0),Ycc2(end,Zcc2_interp(end,:)==0),'linear','extrap');
+Zcc2(end,Zcc2(end,:)==0) = Zcc2_interp(end,Zcc2(end,:)==0);
+Zcc2_interp(Zcc2_interp(:,end)==0,end) = interp1(Xcc2(Zcc2_interp(:,end)<0,end),Zcc2_interp(Zcc2_interp(:,end)<0,end),Xcc2(Zcc2_interp(:,end)==0,end),'linear','extrap');
+Zcc2(Zcc2(:,end)==0,end) = Zcc2_interp(Zcc2(:,end)==0,end);
+Z1 = Zcc2_interp;
+Z2 = Zcc2_interp;
+for i=2:size(Zcc2,1)-1
+    Z1(i,Z1(i,:)==0) = interp1(Ycc2(i,Zcc2_interp(i,:)<0),Zcc2_interp(i,Zcc2_interp(i,:)<0),Ycc2(i,Zcc2_interp(i,:)==0),'linear','extrap');
+end
+for i=2:size(Zcc2,2)-1
+    Z2(Z2(:,i)==0,i) = interp1(Xcc2(Zcc2_interp(:,i)<0,i),Zcc2_interp(Zcc2_interp(:,i)<0,i),Xcc2(Zcc2_interp(:,i)==0,i),'linear','extrap');
+end
+Zcc2_interp = 0.5.*(Z1+Z2);
+Zcc2(Zcc2==0) = Zcc2_interp(Zcc2==0);
+Zcc2_large = interpn(unique(x),unique(y),max(log(eps^20),Zcc2),Xcc_large,Ycc_large,'linear');
+
+%--------------------------------------------------------
+figure(6)
+subplot(1,3,1)
+hold on
+v=linspace(min(min(Z_large)),max(max(Z_large)),11);
+C=contour(X_large,Y_large,Z_large,v);
+colormap(winter)
+idx_x=1:size(C,2);
+idx_x=idx_x((C(1,:)==0.015));
+idx_y=unique(C(2,idx_x));
+text(0.015*ones(1,7),idx_y,string(round(v(10:-1:4),4)))
+plot(X_large(Z_large==max(max(Z_large))),Y_large(Z_large==max(max(Z_large))),'r*')
+hold off
+axis([0 0.15 0 0.15])
+xlabel('\nu in boom');
+ylabel('\nu in recession');
+title('Panel A')
+
+subplot(1,3,2)
+hold on
+v=unique([linspace(min(min(Zcc_large)),min(min(Zcc_interp)),4),linspace(min(min(Zcc_interp)),max(max(Zcc_interp)),11)]);
+C=contour(Xcc_large,Ycc_large,Zcc_large,v);
+colormap(winter)
+idx_x=1:size(C,2);
+idx_x=idx_x((C(1,:)==0.015));
+idx_y=unique(C(2,idx_x));
+text(0.015*ones(1,10),idx_y([1,13:21]),string(round(v([1,13:-1:5]),4)))
+plot(Xcc_large(Zcc_large==max(max(Zcc_large))),Ycc_large(Zcc_large==max(max(Zcc_large))),'r*')
+hold off
+xlabel('\nu in boom');
+ylabel('\nu in recession');
+title('Panel B')
+
+subplot(1,3,3)
+hold on
+v=unique([linspace(min(min(Zcc2_large)),min(min(Zcc2_interp)),4),linspace(min(min(Zcc2_interp)),max(max(Zcc2_interp)),11)]);
+C=contour(Xcc_large,Ycc_large,Zcc2_large,v);
+colormap(winter)
+idx_x=1:size(C,2);
+idx_x=idx_x((C(1,:)==0.015));
+idx_y=unique(C(2,idx_x));
+text(0.015*ones(1,6),idx_y([1,13:17]),string(round(v([1,13:-1:9]),4)))
+plot(Xcc_large(Zcc2_large==max(max(Zcc2_large))),Ycc_large(Zcc2_large==max(max(Zcc2_large))),'r*')
+hold off
+xlabel('\nu in boom');
+ylabel('\nu in recession');
+title('Panel C')

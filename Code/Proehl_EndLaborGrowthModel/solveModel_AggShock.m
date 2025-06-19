@@ -27,8 +27,11 @@ if StaticParams.rho==0
     Sol.distrGrid_min = [10, 1,  -5e-3,-2e-3, -1e-6];
     Sol.distrGrid_max = [14, 1.6, 5e-2, 3e-3,  1e-6];
 elseif StaticParams.k_min>0
-    Sol.distrGrid_min = [20,  1e-2, -2e-2, -1e-4, -1e-6];
-    Sol.distrGrid_max = [23.5, 0.4,  1e-4,  8e-4,  1e-6];
+    Sol.distrGrid_min = [10.5, 0.05, -2e-2, -1e-4, -1e-6];
+    Sol.distrGrid_max = [13,   0.7 ,     0,  8e-4,  1e-6];
+elseif StaticParams.k_min<0
+    Sol.distrGrid_min = [9.5, 1.3, 1e-2,      0, -1e-6];
+    Sol.distrGrid_max = [13,  1.9, 1.5e-1, 2e-2,  1e-6];
 else
     Sol.distrGrid_min = [10.5, 1, 1e-3, -2e-3, -1e-6];
     Sol.distrGrid_max = [13, 1.2, 3e-2,  3e-4,  1e-6];
@@ -68,7 +71,7 @@ grid = zeros(grid_N,length(Poly.xi{1}(1,:)),length(Poly.xi{2}(1,:)));
 
 if M==0
     switch case_nr
-    case {1,5,6,13,14,19,20,21}
+    case {1,5,6,14,19,20,21,29,30,31}
         count = 1;
     case {2,3,4,7}
         count = case_nr;
@@ -130,8 +133,9 @@ for m=1:grid_N
     Sol.wealth(m,:,:) = [StaticParams.wealth(0,Sol.agK(m),Sol.agL(m,1),Sol.agL(m,1)./Sol.agLtax(m,1),StaticParams.kGrid_pol,squeeze(Sol.l(m,1:2,:)));...
                          StaticParams.wealth(1,Sol.agK(m),Sol.agL(m,2),Sol.agL(m,2)./Sol.agLtax(m,2),StaticParams.kGrid_pol,squeeze(Sol.l(m,3:4,:)))]; 
     if M==0
-        Sol.c(m,:,:) = min(squeeze(Sol.wealth(m,:,:)),c_ss);
-        Sol.k_prime(m,:,:) = squeeze(Sol.wealth(m,:,:)-Sol.c(m,:,:));
+        Sol.c(m,:,:) = max(eps,min(squeeze(Sol.wealth(m,:,:))-StaticParams.k_min,c_ss));
+        Sol.k_prime(m,:,:) = max(StaticParams.k_min,squeeze(Sol.wealth(m,:,:)-Sol.c(m,:,:)));
+        Sol.k_prime(m,3:4,:) = max(StaticParams.k_min2,Sol.k_prime(m,3:4,:));
     end
 end
 
@@ -157,7 +161,6 @@ for m=1:grid_N
     Sol.wealth(m,:,:) = [StaticParams.wealth(0,Sol.agK(m),Sol.agL(m,1),Sol.agL(m,1)./Sol.agLtax(m,1),StaticParams.kGrid_pol,squeeze(Sol.l(m,1:2,:)));...
                          StaticParams.wealth(1,Sol.agK(m),Sol.agL(m,2),Sol.agL(m,2)./Sol.agLtax(m,2),StaticParams.kGrid_pol,squeeze(Sol.l(m,3:4,:)))]; 
 end
-Sol.k_prime = Sol.k_prime.*(Sol.k_prime>eps);
 save(strcat(folder,'/Sol',num2str(M),'_PFI.mat'),'-struct','Sol'); 
 end
 end

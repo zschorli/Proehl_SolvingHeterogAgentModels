@@ -8,10 +8,10 @@
 % This file computes the expected ergodic distributions of the different 
 % algorithm solutions.
 %__________________________________________________________________________
-function results_statDistr(StaticParams,case_nr,folder)
+function results_statDistr(StaticParams,case_nr,folder,order)
 
 % truncation order 
-M = 3;
+M = order;
 
 %--------------------------------------------------------------------------
 % Computing the stationary distribution for our PPA and PFI with polynomial
@@ -27,11 +27,15 @@ for order_ct=start:M
 Poly = load(strcat(folder,'/Poly',num2str(order_ct),'_PFI.mat'));
 Sol = load(strcat(folder,'/Sol',num2str(order_ct),'_PFI.mat'));
 if order_ct==0
-    if (case_nr==1)||(case_nr==3)
-        preSol =load(strcat(folder,'/preSol_PFI.mat'));
-    else
-        preSol =load(strcat('res_case',num2str(1+2.*(StaticParams.rho>0)),'/preSol_PFI.mat'));
+    switch case_nr
+    case {1,5,6,14,19,20,21,29,30,31}
+        count = 1;
+    case {2,3,4,7}
+        count = case_nr;
+    otherwise
+        count = 7;
     end
+    preSol =load(strcat('res_case',num2str(count),'/preSol_PFI.mat'));
     weights =  [StaticParams.kGrid*preSol.pdf_cond_b'*[StaticParams.ur(1);StaticParams.er(1)];...
                 StaticParams.kGrid*preSol.pdf_cond_g'*[StaticParams.ur(2);StaticParams.er(2)]];
 else
@@ -39,12 +43,16 @@ else
         Solprev = load(strcat(folder,'/Sol',num2str(order_ct-1),'_PFI.mat'));
         weights = [calcWeights(Solprev.cdf_cond(1:2,:),Poly,StaticParams,0);...
                    calcWeights(Solprev.cdf_cond(3:4,:),Poly,StaticParams,1)];
-    else
-        if (case_nr==1)||(case_nr==3)
-            preSol =load(strcat(folder,'/preSol_PFI.mat'));
-        else
-            preSol =load(strcat('res_case',num2str(1+2.*(StaticParams.rho>0)),'/preSol_PFI.mat'));
+    else 
+        switch case_nr
+        case {1,5,6,14,19,20,21,29,30,31}
+            count = 1;
+        case {2,3,4,7}
+            count = case_nr;
+        otherwise
+            count = 7;
         end
+        preSol =load(strcat('res_case',num2str(count),'/preSol_PFI.mat'));
         weights =  [StaticParams.kGrid*preSol.pdf_cond_b'*[StaticParams.ur(1);StaticParams.er(1)],1,zeros(1,order_ct-1);...
                     StaticParams.kGrid*preSol.pdf_cond_g'*[StaticParams.ur(2);StaticParams.er(2)],1,zeros(1,order_ct-1)];
     end
@@ -75,15 +83,15 @@ Sol.pdf_cond = [Sol.cdf_cond(:,1),Sol.cdf_cond(:,2:end)-Sol.cdf_cond(:,1:end-1)]
 diffs_p = 1e8*ones(2,2);
 iter = 1;
 w_bounds = repmat([1e8;-1e8],[1,Poly.phi_N+1]);
-steps = 25;
+steps = 10;
 
 % Iteration________________________________________________________________
 tic;
-while (diffs_p(end,1) > StaticParams.criter_pdf) && (iter<501)
-    k_prime = max(0,[getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,1,:)),Sol.idx,weights(1,:));...
-                     getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,2,:)),Sol.idx,weights(1,:));...
-                     getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,3,:)),Sol.idx,weights(2,:));...
-                     getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,4,:)),Sol.idx,weights(2,:))]);
+while (diffs_p(end,1) > StaticParams.criter_pdf) && (iter<151)
+    k_prime = [max(StaticParams.k_min,getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,1,:)),Sol.idx,weights(1,:)));...
+               max(StaticParams.k_min,getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,2,:)),Sol.idx,weights(1,:)));...
+               max(StaticParams.k_min2,getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,3,:)),Sol.idx,weights(2,:)));...
+               max(StaticParams.k_min2,getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,4,:)),Sol.idx,weights(2,:)))];
     l_aux = max(0,[getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,1,:)),Sol.idx,weights(1,:));...
                    getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,2,:)),Sol.idx,weights(1,:));...
                    getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.l(:,3,:)),Sol.idx,weights(2,:));...
@@ -115,7 +123,7 @@ while (diffs_p(end,1) > StaticParams.criter_pdf) && (iter<501)
     Sol.cdf_cond = cdf_new;
     iter = iter+1;
 end
-if (iter==502) || (diffs_p(end,2)>=20)
+if (iter==152) || (diffs_p(end,2)>=20)
    Sol.DistrNoConvergence = {true,diffs_p(iter-1,:)}; 
 end
 [Yz,Yk] = ndgrid(1:4,StaticParams.kGrid);

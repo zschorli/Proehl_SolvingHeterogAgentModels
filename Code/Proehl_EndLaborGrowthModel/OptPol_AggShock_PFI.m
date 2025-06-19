@@ -38,6 +38,7 @@ agLtax_new = zeros(size(agL));
 while (max(diffs(max(iter,1),:)) > StaticParams.criter_k) && (iter<=2000)
    parfor m=1:size(k_prime,1)%
 	   k_prime_large = max(StaticParams.k_min,interp1(StaticParams.kGrid_pol,squeeze(k_prime(m,:,:))',StaticParams.kGrid)');   
+       k_prime_large(3:4,:) = max(StaticParams.k_min2,k_prime_large(3:4,:));
 	   [agK_new,weights_new] = calcAggregates(k_prime_large,squeeze(basic_grid(m,:,:)),StaticParams,Poly);
 	   agK_pr(m,:,:,:) = repmat(agK_new([1 1 2 2]),[1,4,length(StaticParams.kGrid_pol)]);
 	   l_prime = @(z_idx,z,k,w)...
@@ -156,7 +157,8 @@ while (max(diffs(max(iter,1),:)) > StaticParams.criter_k) && (iter<=2000)
                          StaticParams.wealth(1,agK(m),agL_new(m,2),agL_new(m,2)./agLtax_new(m,2),StaticParams.kGrid_pol,squeeze(l_new(m,3:4,:)))];
    end
    k_prime_new = max(StaticParams.k_min,wealth-c_new);
-   c_new = min(wealth-StaticParams.k_min,c_new);
+   k_prime_new(:,3:4,:) = max(StaticParams.k_min2,k_prime_new(:,3:4,:));
+   c_new = max(0,min(wealth-repmat([StaticParams.k_min.*ones(1,2),StaticParams.k_min2.*ones(1,2)],[size(wealth,1),1,size(wealth,3)]),c_new));
 
    iter = iter+1;
    diffs(iter,:) = [mean(mean(mean(abs(c_new-c)))),mean(mean(mean(abs(l_new-l)))),mean(mean(abs(agL_new-agL)))];
