@@ -131,7 +131,7 @@ b_approx = [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.b(:,1,:)),Sol.idx,So
 b_approx = interp1(StaticParams.aGrid_pol,b_approx',StaticParams.aGrid)';
 Sol.pdf_cond_b = calcEoPDistr(b_approx,Sol.cdf_cond,StaticParams.bGrid);
 
-Sol.time_distr = tstart-cputime;
+Sol.time_distr = cputime-tstart;
 clear a_prime c_prime pdf_cond_new cdf_new weights diffs iter ;
 
 save(strcat(folder,'/Sol',num2str(order_ct),'_PFI.mat'),'-struct','Sol');

@@ -4,7 +4,7 @@
 %
 % Written by Lilia Maliar, Serguei Maliar and Fernando Valli (2008)
 
-function [kmts,kcross]  = AGGREGATE_NS(l_bar,alpha,prob,ur_b,ur_g,T,J,kvalues_min,kvalues_max,ngridk,ngridkm,nstates_ag,nstates_id,idshock,agshock,km_max,km_min,kprime,km,k,epsilon2,ndiscard,k_min,k_max,kcross,a,a2);
+function [kmts,kvarts,kskewts,kcross]  = AGGREGATE_NS(l_bar,alpha,prob,ur_b,ur_g,T,J,kvalues_min,kvalues_max,ngridk,ngridkm,nstates_ag,nstates_id,idshock,agshock,km_max,km_min,kvar_max,kvar_min,kskew_max,kskew_min,kprime,km,kvar,kskew,k,epsilon2,ndiscard,k_min,k_max,kcross,a,a2);
 
 ur=zeros(nstates_ag,1); ur(1)=ur_b; ur(2)=ur_g; % vector of unemployment 
 % rates in two aggregate states
@@ -13,6 +13,8 @@ er_b=(1-ur_b);   % employment rate in a bad aggregate state
 er_g=(1-ur_g);   % employment rate in a good aggregate state
 
 kmts=zeros(T,1);         % a time series of the mean of capital distribution 
+kvarts=zeros(T,1);
+kskewts=zeros(T,1);
 
 % Time series of aggregate variables
 
@@ -86,7 +88,14 @@ for t=1:T
    kmts(t)=kdistu(t,:)*kvalues*(1-labor_ag(t))+kdiste(t,:)*kvalues*labor_ag(t);
       % aggregate capital=capital of the unemployed + capital of the employed;
       % (1-labor_ag(t)) is the share of unemployed people in the economy
+   U=kdistu(t,:)*kvalues;
+   E=kdiste(t,:)*kvalues;
+   kvarts(t)=kdistu(t,:)*(kvalues-U).^2*(1-labor_ag(t))+kdiste(t,:)*(kvalues-E).^2*labor_ag(t);
+   kskewts(t)=(kdistu(t,:)*(kvalues-U).^3*(1-labor_ag(t))+kdiste(t,:)*(kvalues-E).^3*labor_ag(t))./( kvarts(t)).^(3/2);
+
    kmts(t)=kmts(t)*(kmts(t)>=km_min)*(kmts(t)<=km_max)+km_min*(kmts(t)<km_min)+km_max*(kmts(t)>km_max); % restrict kmts to be within [km_min, km_max]
+   kvarts(t)=kvarts(t)*(kvarts(t)>=kvar_min)*(kvarts(t)<=kvar_max)+kvar_min*(kvarts(t)<kvar_min)+kvar_max*(kvarts(t)>kvar_max);
+   kskewts(t)=kskewts(t)*(kskewts(t)>=kskew_min)*(kskewts(t)<=kskew_max)+kskew_min*(kskewts(t)<kskew_min)+kskew_max*(kskewts(t)>kskew_max);
 
    % Prices
    
@@ -99,11 +108,11 @@ for t=1:T
   % Individual capital function, k'
   %________________________________________________________________________
    
-  kprimet(:,1)=interpn(k,km,kprime(:,:,agshock(t),1),kvalues,kmts(t)*ones(J,1),'linear'); 
+  kprimet(:,1)=interpn(k,km,kvar,kskew,kprime(:,:,:,:,agshock(t),1),kvalues,kmts(t)*ones(J,1),kvarts(t)*ones(J,1),kskewts(t)*ones(J,1),'linear'); 
       % interpolate the capital function k' (computed in "MAIN") of the 
       % unemployed agent in kvalues for the given agg. capital km_ag(t)
       
-  kprimet(:,2)=interpn(k,km,kprime(:,:,agshock(t),2),kvalues,kmts(t)*ones(J,1),'linear');
+  kprimet(:,2)=interpn(k,km,kvar,kskew,kprime(:,:,:,:,agshock(t),2),kvalues,kmts(t)*ones(J,1),kvarts(t)*ones(J,1),kskewts(t)*ones(J,1),'linear');
       % the same for the employed agent
       
    kprimet=kprimet.*(kprimet>=kvalues_min).*(kprimet<=kvalues_max)+kvalues_min*(kprimet<kvalues_min)+kvalues_max*(kprimet>kvalues_max);
@@ -260,7 +269,15 @@ end; % end of the NON-STOCHASTIC SIMULATION
 
 kmts(T)=kdistu(T,:)*kvalues*(1-labor_ag(T))+kdiste(T,:)*kvalues*labor_ag(T);
                           % aggregate capital in T
-kmts(T)=kmts(T)*(kmts(T)>=km_min)*(kmts(T)<=km_max)+km_min*(kmts(T)<km_min)+km_max*(kmts(T)>km_max); % restrict kmts to be within [km_min, km_max]
+U=kdistu(T,:)*kvalues;
+E=kdiste(T,:)*kvalues;
+kvarts(T)=kdistu(T,:)*(kvalues-U).^2*(1-labor_ag(T))+kdiste(T,:)*(kvalues-E).^2*labor_ag(T);
+kskewts(T)=(kdistu(T,:)*(kvalues-U).^3*(1-labor_ag(T))+kdiste(T,:)*(kvalues-E).^3*labor_ag(T))./( kvarts(T)).^(3/2);
+
+kmts(T)=kmts(T)*(kmts(T)>=km_min)*(kmts(T)<=km_max)+km_min*(kmts(T)<km_min)+km_max*(kmts(T)>km_max); % restrict kmts to be within [km_min, km_max]  
+kvarts(T)=kvarts(T)*(kvarts(T)>=kvar_min)*(kvarts(T)<=kvar_max)+kvar_min*(kvarts(T)<kvar_min)+kvar_max*(kvarts(T)>kvar_max); 
+kskewts(T)=kskewts(T)*(kskewts(T)>=kskew_min)*(kskewts(T)<=kskew_max)+kskew_min*(kskewts(T)<kskew_min)+kskew_max*(kskewts(T)>kskew_max);
+
 %__________________________________________________________________________
 %
 % Terminal distribution of capital

@@ -216,8 +216,8 @@ plot(StaticParams.kGrid,p*Sol2.pdf,'b','LineWidth',1.5);
 plot(StaticParams.kGrid,p*Sol3.pdf,'m--','LineWidth',1.5);
 % plot(StaticParams.kGrid,p*Sol4.pdf,'g-.','LineWidth',1.5);
 hold off
-axis([0 100 0 0.0035])
-% axis([0 100 0 0.012])
+%axis([0 100 0 0.0035])
+% axis([0 100 0 0.01])
 legend('K-S 1 moment','PPA 0^{th} order','PPA 1^{st} order','PPA 2^{nd} order','PPA 3^{rd} order')
 xlabel('individual capital k');
 ylabel('probability');
@@ -230,8 +230,8 @@ plot(StaticParams.kGrid,p*KS2.pdf,'c','LineWidth',1.5);
 plot(StaticParams.kGrid,p*KS3.pdf,'b','LineWidth',1.5);
 plot(StaticParams.kGrid,p*KS4.pdf,'m--','LineWidth',1.5);
 hold off
-axis([0 100 0 0.0035])
-% axis([0 100 0 0.012])
+%axis([0 100 0 0.0035])
+% axis([0 100 0 0.01])
 legend('PPA 3^{rd} order','K-S 1 moment','K-S 2 moments','K-S 3 moments','K-S 4 moments')
 xlabel('individual capital k');
 ylabel('probability');
@@ -271,12 +271,12 @@ xlabel('individual capital k');
 ylabel('probability');
 
 figure(14)
-pdf = compSol.pdf_k;
+pdf = compSol.pdf_b;
 pdf(:,2:end) = pdf(:,2:end)./repmat(StaticParams1.kGrid(2:end)-StaticParams1.kGrid(1:end-1),[size(pdf,1),1]); 
-plot(StaticParams1.kGrid,pdf);
+plot(StaticParams1.kGrid,pdf(1:20,:));
 axis([0 100 0 0.03])
-names = cell(1,length(compSol.muGrid));
-for i=1:length(compSol.muGrid)
+names = cell(1,length(compSol.muGrid)-2);
+for i=1:length(compSol.muGrid)-2
     names{i} = strcat('\nu=',num2str(compSol.muGrid(i)*100),'%');
 end
 legend(names)

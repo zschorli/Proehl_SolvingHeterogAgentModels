@@ -1,9 +1,9 @@
 
 This folder contains MATLAB software accompanying the working
 paper “Approximating Equilibria with Ex-Post Heterogeneity
-and Aggregate Risk” by Elisabeth Proehl, (June 2025). 
+and Aggregate Risk” by Elisabeth Proehl, (October 2026). 
 
-This version: June 2025
+This version: October 2026
 The following items are provided: 
 
 1. LICENSE AGREEMENT.
@@ -20,11 +20,11 @@ The following items are provided:
             risk, computes stationary distributions and errors, produces plots
 	
 
-	(2) "Proehl_EndLaborGrowthModel": Implements the policy function 
-			iteration using polynomial chaos expansions to solve
-            the Aiyagari-Bewley economy with aggregate risk and  
-            endogenous labor supply choice, computes stationary 
-			distributions and errors, produces plots/tables
+	(2) "Proehl_HousingModel": Implements the policy function 
+	    iteration using polynomial chaos expansions to solve the 
+            Aiyagari-Bewley economy with aggregate risk and housing with 
+            a collateral constraint, computes stationary distributions
+	    and errors, produces plots/tables
 
    b. Folders containing code from existing papers for the comparison in 
       this working paper: 
@@ -56,7 +56,7 @@ The following items are provided:
    a. Baseline model:
 	
 	1. 	In Folders (3)-(6): Define the appropriate path to Folder 1 in lines 
-		116 and 122 of ”MAIN.m”.
+		100, 118 and 124 of ”MAIN.m”.
 
 	2. 	In Folder (1): Define the appropriate path to Folders 3-6 in line 61
 		of ”main.m”.
@@ -64,9 +64,12 @@ The following items are provided:
 	3. 	In Folder (1): Define the appropriate path to Folder 1 in line 70 of
 		”main.m”.
 
-	4. 	In Folder (1): Run ”main.m”.
+	4. 	In Folder (1): Define the appropriate path to Folders 3-6 in line 32 of
+		”results_statDistr.m”.
 
-	5. 	In Folder (1): Run ”plots.m” to reproduce the figures.
+	5. 	In Folder (1): Run ”main.m”.
+
+	6. 	In Folder (1): Run ”plots.m” to reproduce the figures.
 
    b. Extended model:
 
@@ -88,7 +91,7 @@ Netherlands
 e.proehl@uva.nl
 
 -------------------------------------------------------------------------
-Copyright © 2025by Elisabeth Proehl. All rights reserved. The code may 
+Copyright © 2026 by Elisabeth Proehl. All rights reserved. The code may 
 be used, modified and redistributed under the terms provided in the file 
 "LICENSE.txt".
 -------------------------------------------------------------------------

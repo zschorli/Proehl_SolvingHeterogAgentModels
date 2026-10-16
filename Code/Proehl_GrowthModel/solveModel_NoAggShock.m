@@ -28,23 +28,23 @@ c_g = repmat(log(StaticParams.kGrid_pol+1)+0.2,[2,1,N]);
 k_prime_g =(StaticParams.wealth(1,StaticParams.KGrid,StaticParams.kGrid_pol)-c_g);
 
 if StaticParams.methodEqPFI == 1
-	tic;
+	tstart=cputime;
 	[c_g,k_prime_g,diff_g]...
     = OptPol_NoAggShock_PFI(true,c_g,k_prime_g,StaticParams);
-    preSol.time_g = toc;
+    preSol.time_g = cputime-tstart;
 else
 	iter_ct = 5000;                   % maximal iteration count
     y_g = zeros(2,n,N);
     flag_g = zeros(iter_ct,N);
     diff_g = zeros(iter_ct,2,N);
 
-    tic;
+    tstart=cputime;
     parfor i=1:N %
         [c_g(:,:,i),k_prime_g(:,:,i),y_g(:,:,i),diff_g(:,:,i),flag_g(:,i)]...
         = OptPol_NoAggShock_PPA(i,1,squeeze(k_prime_g(:,:,i)),...
           squeeze(y_g(:,:,i)),StaticParams,iter_ct);
     end
-    preSol.time_g = toc;
+    preSol.time_g = cputime-tstart;
 end
 preSol.k_prime_g = k_prime_g.*(k_prime_g>eps);
 preSol.c_g = c_g;
@@ -65,23 +65,23 @@ c_b = repmat(log(StaticParams.kGrid_pol+1)+0.2,[2,1,N]);
 k_prime_b = StaticParams.wealth(0,StaticParams.KGrid,StaticParams.kGrid_pol)-c_b;
 
 if StaticParams.methodEqPFI == 1
-	tic;
+	tstart=cputime;
 	[c_b,k_prime_b,diff_b]...
     = OptPol_NoAggShock_PFI(false,c_b,k_prime_b,StaticParams);
-    preSol.time_b = toc;
+    preSol.time_b = cputime-tstart;
 else
 	iter_ct = 5000;                   % maximal iteration count
 	y_b = zeros(2,n,N);
     flag_b = zeros(iter_ct,N); 
     diff_b = zeros(iter_ct,2,N);
 
-	tic;
+	tstart=cputime;
 	parfor i=1:N %
 		[c_b(:,:,i),k_prime_b(:,:,i),y_b(:,:,i),diff_b(:,:,i),flag_b(:,i)]...
 		= OptPol_NoAggShock_PPA(i,0,squeeze(k_prime_b(:,:,i)),...
           squeeze(y_b(:,:,i)),StaticParams,iter_ct);
 	end
-	preSol.time_b = toc;
+	preSol.time_b = cputime-tstart;
 end
 preSol.k_prime_b = k_prime_b.*(k_prime_b>eps);
 preSol.c_b = c_b;
@@ -110,33 +110,9 @@ P = zeros([2,size(StaticParams.P_g)]);
 P(1,:,:) = StaticParams.P_b;
 P(2,:,:) = StaticParams.P_g;   
 
-tic;
-for bool_gb=0:1 %par
+tstart=cputime;
+parfor bool_gb=0:1 %
     k_prime = max(0,squeeze(k(bool_gb+1,:,:,:)));
-    % pdf_cond = zeros(2,length(StaticParams.kGrid));  
-    % pdf_cond(:,getCapIdx(StaticParams.kss,StaticParams.kGrid)) = 1;
-    % k_prime_approx = @(z_idx,k,K) interpn(StaticParams.kGrid_pol,StaticParams.KGrid,squeeze(k_prime(z_idx,:,:)),k,K);
-    % iter = 1;
-    % diffs = 1e8*ones(2,1);
-    % while (diffs(end)) > StaticParams.criter_pdf        
-    %     pdf_cond_new = (repmat(1./(StaticParams.p(2*bool_gb+(1:2))'*StaticParams.P(2*bool_gb+(1:2),2*bool_gb+(1:2)))',[1,2])...
-    %                    .*StaticParams.P(2*bool_gb+(1:2),2*bool_gb+(1:2))')...
-    %                    *(repmat(StaticParams.p(2*bool_gb+(1:2)),[1,size(pdf_cond,2)])...
-    %                    .*pdf_cond);
-    %     cdf_cond_new = cummax(min(1,cumsum(pdf_cond_new,2)),2);
-    %     cdf_cond_new(1,cdf_cond_new(1,:)==max(cdf_cond_new(1,:))) = 1;
-    %     cdf_cond_new(2,cdf_cond_new(2,:)==max(cdf_cond_new(2,:))) = 1;
-    %     agK = StaticParams.kGrid*pdf_cond_new'*[StaticParams.ur(bool_gb+1);StaticParams.er(bool_gb+1)];
-    %     k_prime2 = [k_prime_approx(1,StaticParams.kGrid,min(StaticParams.KGrid(end),max(StaticParams.KGrid(1),agK)))';...
-    %                 k_prime_approx(2,StaticParams.kGrid,min(StaticParams.KGrid(end),max(StaticParams.KGrid(1),agK)))'];
-    %     pdf_cond_new = calcEoPDistr(max(StaticParams.k_min,k_prime2),...
-    %                    cdf_cond_new,StaticParams.kGrid);
-    % 
-    %     diffs(iter) = norm(pdf_cond_new-pdf_cond,2);
-    %     pdf_cond_new = pdf_cond_new.*(pdf_cond_new>eps);
-    %     pdf_cond = pdf_cond_new./repmat(sum(pdf_cond_new,2),[1,size(pdf_cond_new,2)]);
-    %     iter = iter+1;
-    % end
 
     [Yz,Yk] = ndgrid(1:2,StaticParams.kGrid_pol,1);
     k_prime_approx = @(K) interpn(1:2,StaticParams.kGrid_pol,StaticParams.KGrid,k_prime,Yz,Yk,K.*ones(size(Yz)));
@@ -146,7 +122,7 @@ for bool_gb=0:1 %par
     
     pdf(bool_gb+1,:,:) = pdf_stationary;
 end
-preSol.time_distr = toc;
+preSol.time_distr = cputime-tstart;
 
 preSol.pdf_cond_b = squeeze(pdf(1,:,:)); 
 preSol.pdf_cond_g = squeeze(pdf(2,:,:)); 

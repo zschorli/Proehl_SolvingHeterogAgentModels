@@ -169,15 +169,15 @@ iter = 1;
 % Iteration 
 %--------------------------------------------------------------------------
 if StaticParams.methodEqPFI == 1
-	tic;
+	tstart=cputime;
 	[Sol.c,Sol.k_prime,Sol.diff]...
     = OptPol_AggShock_PFI(Sol.c,Sol.k_prime,grid,StaticParams,Poly,Sol.grid_N,Sol.distrGrid,Sol.idx,Sol.wealth);
-    Sol.time_solve = toc;
+    Sol.time_solve = cputime-tstart;
 else
 	agK_prime_new_var = zeros(grid_N,2,2,length(StaticParams.kGrid_pol));
 	c_pr_var = zeros(grid_N,4,4,length(StaticParams.kGrid_pol));
     mult = max(1,M)/10;
-	tic;
+	tstart=cputime;
 	while max(Sol.diff(end,:)) > StaticParams.criter_k && sum(Sol.flag(end,:)>0)>0
         parfor m=1:grid_N  %
             k_prime = squeeze(Sol.k_prime(m,:,:));
@@ -208,7 +208,7 @@ else
         
         iter = iter+1;
 	end	
-    Sol.time_solve = toc;
+    Sol.time_solve = cputime-tstart;
 end
 Sol.k_prime = Sol.k_prime.*(Sol.k_prime>eps);
 if StaticParams.methodEqPFI == 0

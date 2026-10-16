@@ -49,6 +49,6 @@ solveModel_AggShock(StaticParams,folder,order);
 % Compute Results
 %--------------------------------------------------------------------------
 results_statDistr(StaticParams,folder,order);
-results_Errors(StaticParams,folder);
+results_Errors(StaticParams,folder,order);
 
-plots;
+% plots;

@@ -96,7 +96,9 @@ kss=((1/beta-(1-delta))/alpha)^(1/(alpha-1)); % steady-state capital in a
 % Method 1 uses both idiosyncartic and aggregate shocks, while Method 2 uses
 % only aggregate shock
 
-[idshock,agshock]  = SHOCKS(prob,T,N,ur_b);
+%[idshock,agshock]  = SHOCKS(prob,T,N,ur_b);
+load(strcat('C:\Users\Elisabeth Proehl\Documents\GitHub\Proehl_SolvingHeterogAgentModels\Code\KrusellSmithByMaliarMaliarValli_1mom\KS1_Sol1.mat'),'idshock','agshock');
+
 %__________________________________________________________________________
 %
 % Grids
@@ -227,7 +229,7 @@ update_B=0.1;  % updating parameter for the coefficients B in the ALM
 %__________________________________________________________________________
 
 iteration=0      % initial iteration  
-init_time=clock; % initialize the time clock
+init_time=cputime; % initialize the time clock
 
 i=1; while dif_B>criter_B % perform iterations until the difference between 
                           % coefficients is less or equal than criter_B
@@ -238,7 +240,7 @@ i=1; while dif_B>criter_B % perform iterations until the difference between
 if Method==1; 
     [kmts,kvarts,kskewts,kcross1]  = AGGREGATE_ST(T,idshock,agshock,km_max,km_min,kvar_max,kvar_min,kskew_max,kskew_min,kprime,km,kvar,kskew,k,epsilon2,k_min,k_max,kcross,a2);
 else % i.e., Method 2 
-    [kmts,kcross1]  = AGGREGATE_NS(l_bar,alpha,prob,ur_b,ur_g,T,J,kvalues_min,kvalues_max,ngridk,ngridkm,nstates_ag,nstates_id,idshock,agshock,km_max,km_min,kprime,km,k,epsilon2,ndiscard,k_min,k_max,kcross,a,a2);
+    [kmts,kvarts,kskewts,kcross1]  = AGGREGATE_NS(l_bar,alpha,prob,ur_b,ur_g,T,J,kvalues_min,kvalues_max,ngridk,ngridkm,nstates_ag,nstates_id,idshock,agshock,km_max,km_min,kvar_max,kvar_min,kskew_max,kskew_min,kprime,km,kvar,kskew,k,epsilon2,ndiscard,k_min,k_max,kcross,a,a2);
 end
 
 % Time series for the ALM regression 
@@ -296,7 +298,7 @@ dif_B3=max(abs(B3-B31))
 % we use the terminal distribution of the current iteration as initial 
 % distribution for a subsequent iteration. When the solution is sufficiently 
 % accurate, dif_B<(criter_B*100), we stop such an updating and hold the 
-% distribution "kcross" fixed for the rest of iterations. ·
+% distribution "kcross" fixed for the rest of iterations.  
 
 if dif_B>(criter_B*100) || dif_B2>(criter_B*100) || dif_B3>(criter_B*100)
     kcross=kcross1; % the new capital distribution  replaces the old one
@@ -310,8 +312,8 @@ iteration=iteration+1
 
 end
 
-end_time=clock;               % end the time clock
-et=etime(end_time,init_time); % compute time in seconds that has elapsed 
+end_time=cputime;               % end the time clock
+et=end_time-init_time; % compute time in seconds that has elapsed 
                               % between init_time and end_time
 disp('Elapsed Time (in seconds):'); et
 disp('Iterations');          iteration

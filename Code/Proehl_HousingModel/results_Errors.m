@@ -11,7 +11,7 @@
 function results_Errors(StaticParams,folder,order)
 
 % truncation order 
-M = order;
+M = order+1;
 
 %--------------------------------------------------------------------------
 % Initialization
@@ -31,7 +31,7 @@ M = order;
 Res = load(strcat(folder,'/Res.mat'));
 Res.aGrid = unique([StaticParams.aGrid_pol,linspace(StaticParams.a_min,StaticParams.a_max,1001)]);
 algo_idx = logical(sum(repmat(Res.aGrid,[length(StaticParams.aGrid_pol),1])==repmat(StaticParams.aGrid_pol',[1,length(Res.aGrid)]),1));
-Sol = load(strcat(folder,'/Sol2_PFI.mat'));
+Sol = load(strcat(folder,'/Sol3_PFI.mat'));
 pdf_start = 0.5.*(Sol.pdf_cond(1:2,:)+Sol.pdf_cond(3:4,:));
 cdf_start = Sol.cdf;
 
@@ -468,41 +468,57 @@ Res.dyn_euler_A = dyn_euler_A;
 %--------------------------------------------------------------------------
 % Compute the Euler equation error statistics
 %--------------------------------------------------------------------------
-Res.median_stErr_PFI = [median(abs(Res.stErr_PFI1));median(abs(Res.stErr_PFI2));median(abs(Res.stErr_PFI3));median(abs(Res.stErr_PFI4))];
-Res.mean_stErr_PFI = [mean(abs(Res.stErr_PFI1));mean(abs(Res.stErr_PFI2));mean(abs(Res.stErr_PFI3));mean(abs(Res.stErr_PFI4))];
-Res.min_stErr_PFI = [min(abs(Res.stErr_PFI1));min(abs(Res.stErr_PFI2));min(abs(Res.stErr_PFI3));min(abs(Res.stErr_PFI4))];
-Res.max_stErr_PFI = [max(abs(Res.stErr_PFI1));max(abs(Res.stErr_PFI2));max(abs(Res.stErr_PFI3));max(abs(Res.stErr_PFI4))];
-Res.median_dynErr_PFI = [median(abs(Res.dynErr_PFI1));median(abs(Res.dynErr_PFI2));median(abs(Res.dynErr_PFI3));median(abs(Res.dynErr_PFI4))];
-Res.mean_dynErr_PFI = [mean(abs(Res.dynErr_PFI1));mean(abs(Res.dynErr_PFI2));mean(abs(Res.dynErr_PFI3));mean(abs(Res.dynErr_PFI4))];
-Res.min_dynErr_PFI = [min(abs(Res.dynErr_PFI1));min(abs(Res.dynErr_PFI2));min(abs(Res.dynErr_PFI3));min(abs(Res.dynErr_PFI4))];
-Res.max_dynErr_PFI = [max(abs(Res.dynErr_PFI1));max(abs(Res.dynErr_PFI2));max(abs(Res.dynErr_PFI3));max(abs(Res.dynErr_PFI4))];
+Res.stErr_PFI1 = Res.stErr_PFI1(~isnan(Res.stErr_PFI1));
+Res.stErr_PFI2 = Res.stErr_PFI2(~isnan(Res.stErr_PFI2));
+Res.stErr_PFI3 = Res.stErr_PFI3(~isnan(Res.stErr_PFI3));
+Res.stErr_PFI4 = Res.stErr_PFI4(~isnan(Res.stErr_PFI4));
+Res.dynErr_PFI1 = Res.dynErr_PFI1(~isnan(Res.dynErr_PFI1));
+Res.dynErr_PFI2 = Res.dynErr_PFI2(~isnan(Res.dynErr_PFI2));
+Res.dynErr_PFI3 = Res.dynErr_PFI3(~isnan(Res.dynErr_PFI3));
+Res.dynErr_PFI4 = Res.dynErr_PFI4(~isnan(Res.dynErr_PFI4));
+Res.stErr_PFI1_algoGrid = Res.stErr_PFI1_algoGrid(~isnan(Res.stErr_PFI1_algoGrid));
+Res.stErr_PFI2_algoGrid = Res.stErr_PFI2_algoGrid(~isnan(Res.stErr_PFI2_algoGrid));
+Res.stErr_PFI3_algoGrid = Res.stErr_PFI3_algoGrid(~isnan(Res.stErr_PFI3_algoGrid));
+Res.stErr_PFI4_algoGrid = Res.stErr_PFI4_algoGrid(~isnan(Res.stErr_PFI4_algoGrid));
+Res.dynErr_PFI1_algoGrid = Res.dynErr_PFI1_algoGrid(~isnan(Res.dynErr_PFI1_algoGrid));
+Res.dynErr_PFI2_algoGrid = Res.dynErr_PFI2_algoGrid(~isnan(Res.dynErr_PFI2_algoGrid));
+Res.dynErr_PFI3_algoGrid = Res.dynErr_PFI3_algoGrid(~isnan(Res.dynErr_PFI3_algoGrid));
+Res.dynErr_PFI4_algoGrid = Res.dynErr_PFI4_algoGrid(~isnan(Res.dynErr_PFI4_algoGrid));
+Res.median_stErr_PFI = [median((Res.stErr_PFI1));median((Res.stErr_PFI2));median((Res.stErr_PFI3));median((Res.stErr_PFI4))];
+Res.mean_stErr_PFI = [mean((Res.stErr_PFI1));mean((Res.stErr_PFI2));mean((Res.stErr_PFI3));mean((Res.stErr_PFI4))];
+Res.min_stErr_PFI = [min((Res.stErr_PFI1));min((Res.stErr_PFI2));min((Res.stErr_PFI3));min((Res.stErr_PFI4))];
+Res.max_stErr_PFI = [max((Res.stErr_PFI1));max((Res.stErr_PFI2));max((Res.stErr_PFI3));max((Res.stErr_PFI4))];
+Res.median_dynErr_PFI = [median((Res.dynErr_PFI1));median((Res.dynErr_PFI2));median((Res.dynErr_PFI3));median((Res.dynErr_PFI4))];
+Res.mean_dynErr_PFI = [mean((Res.dynErr_PFI1));mean((Res.dynErr_PFI2));mean((Res.dynErr_PFI3));mean((Res.dynErr_PFI4))];
+Res.min_dynErr_PFI = [min((Res.dynErr_PFI1));min((Res.dynErr_PFI2));min((Res.dynErr_PFI3));min((Res.dynErr_PFI4))];
+Res.max_dynErr_PFI = [max((Res.dynErr_PFI1));max((Res.dynErr_PFI2));max((Res.dynErr_PFI3));max((Res.dynErr_PFI4))];
 
-Res.median_stErr_PFI_algoGrid = [median(abs(Res.stErr_PFI1_algoGrid));median(abs(Res.stErr_PFI2_algoGrid));median(abs(Res.stErr_PFI3_algoGrid));median(abs(Res.stErr_PFI4_algoGrid))];
-Res.mean_stErr_PFI_algoGrid = [mean(abs(Res.stErr_PFI1_algoGrid));mean(abs(Res.stErr_PFI2_algoGrid));mean(abs(Res.stErr_PFI3_algoGrid));mean(abs(Res.stErr_PFI4_algoGrid))];
-Res.min_stErr_PFI_algoGrid = [min(abs(Res.stErr_PFI1_algoGrid));min(abs(Res.stErr_PFI2_algoGrid));min(abs(Res.stErr_PFI3_algoGrid));min(abs(Res.stErr_PFI4_algoGrid))];
-Res.max_stErr_PFI_algoGrid = [max(abs(Res.stErr_PFI1_algoGrid));max(abs(Res.stErr_PFI2_algoGrid));max(abs(Res.stErr_PFI3_algoGrid));max(abs(Res.stErr_PFI4_algoGrid))];
-Res.median_dynErr_PFI_algoGrid = [median(abs(Res.dynErr_PFI1_algoGrid));median(abs(Res.dynErr_PFI2_algoGrid));median(abs(Res.dynErr_PFI3_algoGrid));median(abs(Res.dynErr_PFI4_algoGrid))];
-Res.mean_dynErr_PFI_algoGrid = [mean(abs(Res.dynErr_PFI1_algoGrid));mean(abs(Res.dynErr_PFI2_algoGrid));mean(abs(Res.dynErr_PFI3_algoGrid));mean(abs(Res.dynErr_PFI4_algoGrid))];
-Res.min_dynErr_PFI_algoGrid = [min(abs(Res.dynErr_PFI1_algoGrid));min(abs(Res.dynErr_PFI2_algoGrid));min(abs(Res.dynErr_PFI3_algoGrid));min(abs(Res.dynErr_PFI4_algoGrid))];
-Res.max_dynErr_PFI_algoGrid = [max(abs(Res.dynErr_PFI1_algoGrid));max(abs(Res.dynErr_PFI2_algoGrid));max(abs(Res.dynErr_PFI3_algoGrid));max(abs(Res.dynErr_PFI4_algoGrid))];
+Res.median_stErr_PFI_algoGrid = [median((Res.stErr_PFI1_algoGrid));median((Res.stErr_PFI2_algoGrid));median((Res.stErr_PFI3_algoGrid));median((Res.stErr_PFI4_algoGrid))];
+Res.mean_stErr_PFI_algoGrid = [mean((Res.stErr_PFI1_algoGrid));mean((Res.stErr_PFI2_algoGrid));mean((Res.stErr_PFI3_algoGrid));mean((Res.stErr_PFI4_algoGrid))];
+Res.min_stErr_PFI_algoGrid = [min((Res.stErr_PFI1_algoGrid));min((Res.stErr_PFI2_algoGrid));min((Res.stErr_PFI3_algoGrid));min((Res.stErr_PFI4_algoGrid))];
+Res.max_stErr_PFI_algoGrid = [max((Res.stErr_PFI1_algoGrid));max((Res.stErr_PFI2_algoGrid));max((Res.stErr_PFI3_algoGrid));max((Res.stErr_PFI4_algoGrid))];
+Res.median_dynErr_PFI_algoGrid = [median((Res.dynErr_PFI1_algoGrid));median((Res.dynErr_PFI2_algoGrid));median((Res.dynErr_PFI3_algoGrid));median((Res.dynErr_PFI4_algoGrid))];
+Res.mean_dynErr_PFI_algoGrid = [mean((Res.dynErr_PFI1_algoGrid));mean((Res.dynErr_PFI2_algoGrid));mean((Res.dynErr_PFI3_algoGrid));mean((Res.dynErr_PFI4_algoGrid))];
+Res.min_dynErr_PFI_algoGrid = [min((Res.dynErr_PFI1_algoGrid));min((Res.dynErr_PFI2_algoGrid));min((Res.dynErr_PFI3_algoGrid));min((Res.dynErr_PFI4_algoGrid))];
+Res.max_dynErr_PFI_algoGrid = [max((Res.dynErr_PFI1_algoGrid));max((Res.dynErr_PFI2_algoGrid));max((Res.dynErr_PFI3_algoGrid));max((Res.dynErr_PFI4_algoGrid))];
 
-Res.median_stErr_PFI_q = [median(abs(Res.stErr_PFI1_q));median(abs(Res.stErr_PFI2_q));median(abs(Res.stErr_PFI3_q));median(abs(Res.stErr_PFI4_q))];
-Res.mean_stErr_PFI_q = [mean(abs(Res.stErr_PFI1_q));mean(abs(Res.stErr_PFI2_q));mean(abs(Res.stErr_PFI3_q));mean(abs(Res.stErr_PFI4_q))];
-Res.min_stErr_PFI_q = [min(abs(Res.stErr_PFI1_q));min(abs(Res.stErr_PFI2_q));min(abs(Res.stErr_PFI3_q));min(abs(Res.stErr_PFI4_q))];
-Res.max_stErr_PFI_q = [max(abs(Res.stErr_PFI1_q));max(abs(Res.stErr_PFI2_q));max(abs(Res.stErr_PFI3_q));max(abs(Res.stErr_PFI4_q))];
-Res.median_dynErr_PFI_q = [median(abs(Res.dynErr_PFI1_q));median(abs(Res.dynErr_PFI2_q));median(abs(Res.dynErr_PFI3_q));median(abs(Res.dynErr_PFI4_q))];
-Res.mean_dynErr_PFI_q = [mean(abs(Res.dynErr_PFI1_q));mean(abs(Res.dynErr_PFI2_q));mean(abs(Res.dynErr_PFI3_q));mean(abs(Res.dynErr_PFI4_q))];
-Res.min_dynErr_PFI_q = [min(abs(Res.dynErr_PFI1_q));min(abs(Res.dynErr_PFI2_q));min(abs(Res.dynErr_PFI3_q));min(abs(Res.dynErr_PFI4_q))];
-Res.max_dynErr_PFI_q = [max(abs(Res.dynErr_PFI1_q));max(abs(Res.dynErr_PFI2_q));max(abs(Res.dynErr_PFI3_q));max(abs(Res.dynErr_PFI4_q))];
+Res.median_stErr_PFI_q = [median((Res.stErr_PFI1_q));median((Res.stErr_PFI2_q));median((Res.stErr_PFI3_q));median((Res.stErr_PFI4_q))];
+Res.mean_stErr_PFI_q = [mean((Res.stErr_PFI1_q));mean((Res.stErr_PFI2_q));mean((Res.stErr_PFI3_q));mean((Res.stErr_PFI4_q))];
+Res.min_stErr_PFI_q = [min((Res.stErr_PFI1_q));min((Res.stErr_PFI2_q));min((Res.stErr_PFI3_q));min((Res.stErr_PFI4_q))];
+Res.max_stErr_PFI_q = [max((Res.stErr_PFI1_q));max((Res.stErr_PFI2_q));max((Res.stErr_PFI3_q));max((Res.stErr_PFI4_q))];
+Res.median_dynErr_PFI_q = [median((Res.dynErr_PFI1_q));median((Res.dynErr_PFI2_q));median((Res.dynErr_PFI3_q));median((Res.dynErr_PFI4_q))];
+Res.mean_dynErr_PFI_q = [mean((Res.dynErr_PFI1_q));mean((Res.dynErr_PFI2_q));mean((Res.dynErr_PFI3_q));mean((Res.dynErr_PFI4_q))];
+Res.min_dynErr_PFI_q = [min((Res.dynErr_PFI1_q));min((Res.dynErr_PFI2_q));min((Res.dynErr_PFI3_q));min((Res.dynErr_PFI4_q))];
+Res.max_dynErr_PFI_q = [max((Res.dynErr_PFI1_q));max((Res.dynErr_PFI2_q));max((Res.dynErr_PFI3_q));max((Res.dynErr_PFI4_q))];
 
-Res.median_stErr_PFI_H = [median(abs(Res.stErr_PFI1_H));median(abs(Res.stErr_PFI2_H));median(abs(Res.stErr_PFI3_H));median(abs(Res.stErr_PFI4_H))];
-Res.mean_stErr_PFI_H = [mean(abs(Res.stErr_PFI1_H));mean(abs(Res.stErr_PFI2_H));mean(abs(Res.stErr_PFI3_H));mean(abs(Res.stErr_PFI4_H))];
-Res.min_stErr_PFI_H = [min(abs(Res.stErr_PFI1_H));min(abs(Res.stErr_PFI2_H));min(abs(Res.stErr_PFI3_H));min(abs(Res.stErr_PFI4_H))];
-Res.max_stErr_PFI_H = [max(abs(Res.stErr_PFI1_H));max(abs(Res.stErr_PFI2_H));max(abs(Res.stErr_PFI3_H));max(abs(Res.stErr_PFI4_H))];
-Res.median_dynErr_PFI_H = [median(abs(Res.dynErr_PFI1_H));median(abs(Res.dynErr_PFI2_H));median(abs(Res.dynErr_PFI3_H));median(abs(Res.dynErr_PFI4_H))];
-Res.mean_dynErr_PFI_H = [mean(abs(Res.dynErr_PFI1_H));mean(abs(Res.dynErr_PFI2_H));mean(abs(Res.dynErr_PFI3_H));mean(abs(Res.dynErr_PFI4_H))];
-Res.min_dynErr_PFI_H = [min(abs(Res.dynErr_PFI1_H));min(abs(Res.dynErr_PFI2_H));min(abs(Res.dynErr_PFI3_H));min(abs(Res.dynErr_PFI4_H))];
-Res.max_dynErr_PFI_H = [max(abs(Res.dynErr_PFI1_H));max(abs(Res.dynErr_PFI2_H));max(abs(Res.dynErr_PFI3_H));max(abs(Res.dynErr_PFI4_H))];
+Res.median_stErr_PFI_H = [median((Res.stErr_PFI1_H));median((Res.stErr_PFI2_H));median((Res.stErr_PFI3_H));median((Res.stErr_PFI4_H))];
+Res.mean_stErr_PFI_H = [mean((Res.stErr_PFI1_H));mean((Res.stErr_PFI2_H));mean((Res.stErr_PFI3_H));mean((Res.stErr_PFI4_H))];
+Res.min_stErr_PFI_H = [min((Res.stErr_PFI1_H));min((Res.stErr_PFI2_H));min((Res.stErr_PFI3_H));min((Res.stErr_PFI4_H))];
+Res.max_stErr_PFI_H = [max((Res.stErr_PFI1_H));max((Res.stErr_PFI2_H));max((Res.stErr_PFI3_H));max((Res.stErr_PFI4_H))];
+Res.median_dynErr_PFI_H = [median((Res.dynErr_PFI1_H));median((Res.dynErr_PFI2_H));median((Res.dynErr_PFI3_H));median((Res.dynErr_PFI4_H))];
+Res.mean_dynErr_PFI_H = [mean((Res.dynErr_PFI1_H));mean((Res.dynErr_PFI2_H));mean((Res.dynErr_PFI3_H));mean((Res.dynErr_PFI4_H))];
+Res.min_dynErr_PFI_H = [min((Res.dynErr_PFI1_H));min((Res.dynErr_PFI2_H));min((Res.dynErr_PFI3_H));min((Res.dynErr_PFI4_H))];
+Res.max_dynErr_PFI_H = [max((Res.dynErr_PFI1_H));max((Res.dynErr_PFI2_H));max((Res.dynErr_PFI3_H));max((Res.dynErr_PFI4_H))];
 
 save(strcat(folder,'/Res.mat'),'-struct','Res');
 end

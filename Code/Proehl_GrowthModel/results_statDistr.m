@@ -92,6 +92,17 @@ while ((diffs_p(end,1) > StaticParams.criter_pdf)||(diffs_p(end,2)>1e-1)) && ite
     KS.cdf_cond = cummax(min(1,cumsum(KS.pdf_cond,2)),2);
     KS.cdf_cond(1,KS.cdf_cond(1,:)==max(KS.cdf_cond(1,:))) = 1;
     KS.cdf_cond(2,KS.cdf_cond(2,:)==max(KS.cdf_cond(2,:))) = 1;
+    KS.cdf = cummax(min(1,cumsum(KS.pdf,2)),2);
+    KS.cdf(1,KS.cdf(1,:)==max(KS.cdf(1,:))) = 1;
+    KS.cdf(2,KS.cdf(2,:)==max(KS.cdf(2,:))) = 1;
+    KS.Lorenz = KS.cdf;
+    KS.Lorenz(1,:)=(tril(repmat(KS.pdf(1,:),[size(KS.pdf,2),1]))*StaticParams.kGrid')'/(KS.pdf(1,:)*StaticParams.kGrid');
+    KS.Lorenz(2,:)=(tril(repmat(KS.pdf(2,:),[size(KS.pdf,2),1]))*StaticParams.kGrid')'/(KS.pdf(2,:)*StaticParams.kGrid');
+    KS.ergodic_gini = [sum(sum((KS.pdf(1,:)'*KS.pdf(1,:)).*abs(repmat(StaticParams.kGrid',[1,size(KS.pdf,2)])-repmat(StaticParams.kGrid,[size(KS.pdf,2),1])),1),2)...
+                /(2*StaticParams.kGrid*KS.pdf(1,:)');...
+                sum(sum((KS.pdf(2,:)'*KS.pdf(2,:)).*abs(repmat(StaticParams.kGrid',[1,size(KS.pdf,2)])-repmat(StaticParams.kGrid,[size(KS.pdf,2),1])),1),2)...
+                /(2*StaticParams.kGrid*KS.pdf(2,:)')];
+
     iter = iter+1;
     if iter==2001
        KS.DistrNoConvergence = {true,diffs_p(iter-1,:)}; 
@@ -122,8 +133,6 @@ end
 if order_ct>0
     weights =  [StaticParams.kGrid*preSol.pdf_cond_b'*[StaticParams.ur(1);StaticParams.er(1)],1,zeros(1,Poly.phi_N-1);...
                 StaticParams.kGrid*preSol.pdf_cond_g'*[StaticParams.ur(2);StaticParams.er(2)],1,zeros(1,Poly.phi_N-1)];
-    % weights =  [StaticParams.kGrid*preSol.pdf_cond_b'*[StaticParams.ur(1);StaticParams.er(1)],2.5,0.04,zeros(1,Poly.phi_N-2);...
-    %             StaticParams.kGrid*preSol.pdf_cond_g'*[StaticParams.ur(2);StaticParams.er(2)],2.5,0.04,zeros(1,Poly.phi_N-2)];
 else
     weights =  [StaticParams.kGrid*preSol.pdf_cond_b'*[StaticParams.ur(1);StaticParams.er(1)];...
                 StaticParams.kGrid*preSol.pdf_cond_g'*[StaticParams.ur(2);StaticParams.er(2)]];
@@ -157,7 +166,7 @@ w_bounds = repmat([1e8;-1e8],[1,Poly.phi_N+1]);
 steps = 50;
 
 % Iteration________________________________________________________________
-tic;
+tstart=cputime;
 while ((diffs_p(end,1) > StaticParams.criter_pdf)||(diffs_p(end,2)>1e-1)) && iter<2001
     k_prime = max(0,[getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,1,:)),Sol.idx,weights(1,:));...
                      getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.k_prime(:,2,:)),Sol.idx,weights(1,:));...
@@ -199,7 +208,15 @@ Sol.cdf_cond = cdf_new;
 Sol.cdf = cummax(min(1,cumsum(Sol.pdf,2)),2);
 Sol.cdf(1,Sol.cdf(1,:)==max(Sol.cdf(1,:))) = 1;
 Sol.cdf(2,Sol.cdf(2,:)==max(Sol.cdf(2,:))) = 1;
-Sol.time_distr = toc;
+Sol.Lorenz = Sol.cdf;
+Sol.Lorenz(1,:)=(tril(repmat(Sol.pdf(1,:),[size(Sol.pdf,2),1]))*StaticParams.kGrid')'/(Sol.pdf(1,:)*StaticParams.kGrid');
+Sol.Lorenz(2,:)=(tril(repmat(Sol.pdf(2,:),[size(Sol.pdf,2),1]))*StaticParams.kGrid')'/(Sol.pdf(2,:)*StaticParams.kGrid');
+Sol.ergodic_gini = [sum(sum((Sol.pdf(1,:)'*Sol.pdf(1,:)).*abs(repmat(StaticParams.kGrid',[1,size(Sol.pdf,2)])-repmat(StaticParams.kGrid,[size(Sol.pdf,2),1])),1),2)...
+            /(2*StaticParams.kGrid*Sol.pdf(1,:)');...
+            sum(sum((Sol.pdf(2,:)'*Sol.pdf(2,:)).*abs(repmat(StaticParams.kGrid',[1,size(Sol.pdf,2)])-repmat(StaticParams.kGrid,[size(Sol.pdf,2),1])),1),2)...
+            /(2*StaticParams.kGrid*Sol.pdf(2,:)')];
+
+Sol.time_distr = cputime-tstart;
 
 if method==0
     save(strcat(folder,'/Sol',num2str(order_ct),'_PPA.mat'),'-struct','Sol');

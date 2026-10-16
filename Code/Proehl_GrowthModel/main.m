@@ -72,4 +72,4 @@ StaticParams = load(strcat('C:\Users\Elisabeth Proehl\Documents\GitHub\Proehl_So
 results_statDistr(case_nr,StaticParams,folder);
 results_Errors(case_nr,StaticParams,folder);
 end
-compareDistr_NoAggShock;
+% compareDistr_NoAggShock;
