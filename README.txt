@@ -71,7 +71,7 @@ The following items are provided:
 
 	6. 	In Folder (1): Run ”plots.m” to reproduce the figures.
 
-   b. Extended model:
+   b. Housing model:
 
 	1. 	In Folder (2): Run ”main.m”.
 
