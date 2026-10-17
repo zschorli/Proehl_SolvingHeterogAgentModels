@@ -28,9 +28,11 @@ c_g = repmat(log(StaticParams.kGrid_pol+1)+0.2,[2,1,N]);
 k_prime_g =(StaticParams.wealth(1,StaticParams.KGrid,StaticParams.kGrid_pol)-c_g);
 
 if StaticParams.methodEqPFI == 1
+    tic;
 	tstart=cputime;
 	[c_g,k_prime_g,diff_g]...
     = OptPol_NoAggShock_PFI(true,c_g,k_prime_g,StaticParams);
+    preSol.time_g_wallclock = toc;
     preSol.time_g = cputime-tstart;
 else
 	iter_ct = 5000;                   % maximal iteration count
@@ -38,12 +40,14 @@ else
     flag_g = zeros(iter_ct,N);
     diff_g = zeros(iter_ct,2,N);
 
+    tic;
     tstart=cputime;
     parfor i=1:N %
         [c_g(:,:,i),k_prime_g(:,:,i),y_g(:,:,i),diff_g(:,:,i),flag_g(:,i)]...
         = OptPol_NoAggShock_PPA(i,1,squeeze(k_prime_g(:,:,i)),...
           squeeze(y_g(:,:,i)),StaticParams,iter_ct);
     end
+    preSol.time_g_wallclock = toc;
     preSol.time_g = cputime-tstart;
 end
 preSol.k_prime_g = k_prime_g.*(k_prime_g>eps);
@@ -65,9 +69,11 @@ c_b = repmat(log(StaticParams.kGrid_pol+1)+0.2,[2,1,N]);
 k_prime_b = StaticParams.wealth(0,StaticParams.KGrid,StaticParams.kGrid_pol)-c_b;
 
 if StaticParams.methodEqPFI == 1
+    tic;
 	tstart=cputime;
 	[c_b,k_prime_b,diff_b]...
     = OptPol_NoAggShock_PFI(false,c_b,k_prime_b,StaticParams);
+    preSol.time_b_wallclock = toc;
     preSol.time_b = cputime-tstart;
 else
 	iter_ct = 5000;                   % maximal iteration count
@@ -75,12 +81,14 @@ else
     flag_b = zeros(iter_ct,N); 
     diff_b = zeros(iter_ct,2,N);
 
+    tic;
 	tstart=cputime;
 	parfor i=1:N %
 		[c_b(:,:,i),k_prime_b(:,:,i),y_b(:,:,i),diff_b(:,:,i),flag_b(:,i)]...
 		= OptPol_NoAggShock_PPA(i,0,squeeze(k_prime_b(:,:,i)),...
           squeeze(y_b(:,:,i)),StaticParams,iter_ct);
-	end
+    end
+    preSol.time_b_wallclock = toc;
 	preSol.time_b = cputime-tstart;
 end
 preSol.k_prime_b = k_prime_b.*(k_prime_b>eps);
@@ -110,6 +118,7 @@ P = zeros([2,size(StaticParams.P_g)]);
 P(1,:,:) = StaticParams.P_b;
 P(2,:,:) = StaticParams.P_g;   
 
+tic;
 tstart=cputime;
 parfor bool_gb=0:1 %
     k_prime = max(0,squeeze(k(bool_gb+1,:,:,:)));
@@ -122,6 +131,7 @@ parfor bool_gb=0:1 %
     
     pdf(bool_gb+1,:,:) = pdf_stationary;
 end
+preSol.time_distr_wallclock = toc;
 preSol.time_distr = cputime-tstart;
 
 preSol.pdf_cond_b = squeeze(pdf(1,:,:)); 

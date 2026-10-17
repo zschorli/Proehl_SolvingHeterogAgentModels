@@ -239,6 +239,7 @@ update_B=0.1;  % updating parameter for the coefficients B in the ALM
 %__________________________________________________________________________
 
 iteration=0      % initial iteration  
+tic;
 init_time=cputime; % initialize the time clock
 
 i=1; while dif_B>criter_B % perform iterations until the difference between 
@@ -331,6 +332,7 @@ iteration=iteration+1
 
 end
 
+et_wallclock=toc;
 end_time=cputime;               % end the time clock
 et=end_time-init_time; % compute time in seconds that has elapsed 
                               % between init_time and end_time
