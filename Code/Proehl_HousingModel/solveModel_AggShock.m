@@ -15,7 +15,7 @@ SymFuns = buildSymFuns(StaticParams, mu);
 % Vary the different truncation orders of the polynomial chaos expansion.
 % Start with order 1 as order zero is fixed due to the zero net supply
 % condition.
-for M=order:order
+for M=0:order
     
 %--------------------------------------------------------------------------
 % Set the grid for polynomial chaos coefficients
@@ -109,10 +109,12 @@ clear a_prime_g_approx a_prime_b_approx c_g_approx c_b_approx...
 %--------------------------------------------------------------------------
 % Iteration 
 %--------------------------------------------------------------------------
+tic;
 tstart = cputime;
 [Sol.c,Sol.h,Sol.a_prime,Sol.b,Sol.wealth,Sol.r,Sol.q_pr,Sol.diff]...
 = OptPol_AggShock_PFI(Sol.c,Sol.h,Sol.a_prime,Sol.wealth,Sol.r,Sol.q_pr,...
   grid,StaticParams,Poly,Sol.grid_N,Sol.distrGrid,Sol.idx,SymFuns);
+Sol.time_solve_wallclock = toc;
 Sol.time_solve = cputime-tstart;
 
 save(strcat(folder,'/Sol',num2str(M),'_PFI.mat'),'-struct','Sol'); 

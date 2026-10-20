@@ -344,7 +344,7 @@ Sol0 = load(strcat(folder,'/Sol0_PPA.mat'));
 Sol1 = load(strcat(folder,'/Sol1_PPA.mat'));
 Sol2 = load(strcat(folder,'/Sol2_PPA.mat'));
 Sol3 = load(strcat(folder,'/Sol3_PPA.mat'));
-preSol = load(strcat('res_case1/preSol_PPA.mat'));
+preSol = load(strcat(folder,'/preSol_PPA.mat'));
 KS = load(strcat(folder,'/KS1_Sol',num2str(case_nr),'.mat'));
 KS2 = load(strcat(folder,'/KS2_Sol',num2str(case_nr),'.mat'));
 KS3 = load(strcat(folder,'/KS3_Sol',num2str(case_nr),'.mat'));
@@ -353,7 +353,7 @@ Sol02 = load(strcat(folder,'/Sol0_PFI.mat'));
 Sol12 = load(strcat(folder,'/Sol1_PFI.mat'));
 Sol22 = load(strcat(folder,'/Sol2_PFI.mat'));
 Sol32 = load(strcat(folder,'/Sol3_PFI.mat'));
-preSol2 = load(strcat('res_case1/preSol_PFI.mat'));
+preSol2 = load(strcat(folder,'/preSol_PFI.mat'));
 
 T_PPA = preSol.time_b+preSol.time_g+preSol.time_distr;
 T_PPA = T_PPA+cumsum([Sol0.time_solve;Sol1.time_solve;Sol2.time_solve;Sol3.time_solve]);
@@ -369,7 +369,7 @@ T_PFI_wc = preSol2.time_b_wallclock+preSol2.time_g_wallclock+preSol2.time_distr_
 T_PFI_wc = T_PFI_wc+cumsum([Sol02.time_solve_wallClock;Sol12.time_solve_wallClock;Sol22.time_solve_wallClock;Sol32.time_solve_wallClock]);
 
 %--------------------------------------------------------------------------
-% Compute Times
+% Ergodic Gini
 %--------------------------------------------------------------------------
 
 pdf = 0.5.*[sum(Sol0.pdf,1);sum(Sol1.pdf,1);sum(Sol2.pdf,1);sum(Sol3.pdf,1)];

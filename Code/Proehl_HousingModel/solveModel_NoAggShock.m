@@ -25,9 +25,11 @@ c_g = 0.1.*StaticParams.wealth(1);
 h_g = F_h(c_g);
 a_prime_g = StaticParams.wealth(1)-c_g-StaticParams.uq_large.*h_g;
 
+tic;
 tstart = cputime;
 [c_g,h_g,a_prime_g,diff_g]...
 = OptPol_NoAggShock_PFI(true,c_g,h_g,a_prime_g,StaticParams);
+preSol.time_g_wallclock = toc;
 preSol.time_g = cputime-tstart;
 
 preSol.a_prime_g = a_prime_g;
@@ -44,9 +46,11 @@ c_b = 0.1.*StaticParams.wealth(0);
 h_b = F_h(c_b);
 a_prime_b = StaticParams.wealth(0)-c_b-StaticParams.uq_large.*h_b;
 
+tic;
 tstart = cputime;
 [c_b,h_b,a_prime_b,diff_b]...
 = OptPol_NoAggShock_PFI(false,c_b,h_b,a_prime_b,StaticParams);
+preSol.time_b_wallclock = toc;
 preSol.time_b = cputime-tstart;
 
 preSol.a_prime_b = a_prime_b;
@@ -80,7 +84,7 @@ P = zeros([2,size(StaticParams.P_g)]);
 P(1,:,:) = StaticParams.P_b;
 P(2,:,:) = StaticParams.P_g; 
 
-
+tic;
 tstart = cputime;
 for bool_gb=0:1 
     a_prime = max(StaticParams.a_min,squeeze(a(bool_gb+1,:,:,:,:,:)));
@@ -163,6 +167,7 @@ b_approx = @(r,q) a_prime_approx(r,q)-q.*h_approx(r,q);
 pdf = calcEoPDistr(b_approx(preSol.agR_stationary_g,preSol.agA_stationary_g),preSol.cdf_cond_g,StaticParams.bGrid);
 preSol.pdf_cond_b_g = pdf;
 
+preSol.time_distr_wallclock = toc;
 preSol.time_distr = cputime-tstart;  
 
 save(strcat(folder,'/preSol_PFI.mat'),'-struct','preSol');

@@ -53,6 +53,7 @@ w_bounds = repmat([1e8;-1e8],[1,Poly.phi_N+1]);
 steps = 1;
 
 % Iteration________________________________________________________________
+tic;
 tstart = cputime;
 while ((diffs_p(end,1) > StaticParams.criter_pdf)||(diffs_p(end,2)>1e-1)) && iter<2001
     a_prime = max(StaticParams.a_min,[getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.a_prime(:,1,:)),Sol.idx,weights(1,:));...
@@ -131,6 +132,7 @@ b_approx = [getCApprox(Sol.grid_N,Sol.distrGrid,squeeze(Sol.b(:,1,:)),Sol.idx,So
 b_approx = interp1(StaticParams.aGrid_pol,b_approx',StaticParams.aGrid)';
 Sol.pdf_cond_b = calcEoPDistr(b_approx,Sol.cdf_cond,StaticParams.bGrid);
 
+Sol.time_distr_wallclock = toc;
 Sol.time_distr = cputime-tstart;
 clear a_prime c_prime pdf_cond_new cdf_new weights diffs iter ;
 
