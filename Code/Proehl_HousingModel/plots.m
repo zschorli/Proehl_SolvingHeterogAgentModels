@@ -334,8 +334,10 @@ preSol = load(strcat(folder,'/preSol_PFI.mat'));
 
 T_PFI = preSol.time_b+preSol.time_g+preSol.time_distr;
 T_PFI = T_PFI+cumsum([Sol0.time_solve;Sol1.time_solve;Sol2.time_solve;Sol3.time_solve]);
+T_PFI = T_PFI./60;
 T_PFI_wc = preSol.time_b_wallclock+preSol.time_g_wallclock+preSol.time_distr_wallclock;
 T_PFI_wc = T_PFI_wc+cumsum([Sol0.time_solve_wallclock;Sol1.time_solve_wallclock;Sol2.time_solve_wallclock;Sol3.time_solve_wallclock]);
+T_PFI_wc = T_PFI_wc./60;
 
 %--------------------------------------------------------------------------
 % Ergodic Gini
