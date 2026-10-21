@@ -212,6 +212,17 @@ xlabel('individual net worth a');
 ylabel('probability');
 title('Panel B')
 
+figure(9)
+hold on
+plot(StaticParams.aGrid,Sol3.pdf_cond(1,:),'r');
+plot(StaticParams.aGrid,Sol3.pdf_cond(2,:),'m');
+plot(StaticParams.aGrid,Sol3.pdf_cond(3,:),'g');
+plot(StaticParams.aGrid,Sol3.pdf_cond(4,:),'c');
+hold off
+axis([StaticParams.a_min 15 0 0.03])
+legend('recession, low earners','recession, high earners','boom, low earners','boom, high earners','Location','northeast')
+xlabel('individual net worth a');
+ylabel('probability');
 
 %--------------------------------------------------------------------------
 % Price Distribution
@@ -233,32 +244,32 @@ u=[0.025,((1+Res.r(end,2:end)).*Res.q(end,1:end-1)./Res.q(end,2:end)-1)];
 [e2,f2]=hist((u(logical((Res.z_ag==1).*zChange))),30);
 [e3,f3]=hist((u(logical((Res.z_ag==1).*not(zChange)))),30);
 
-figure(8)
+figure(9)
 subplot(1,3,1)
 hold on
-h0=plot([b0(1),sort([b0,b0(2:end)-1e-8]),b0(end)],[0,a0(sort([1:end,1:end-1])),0],'r');
-h1=plot([b1(1),sort([b1,b1(2:end)-1e-8]),b1(end)],[0,a1(sort([1:end,1:end-1])),0],'m');
-h2=plot([b2(1),sort([b2,b2(2:end)-1e-8]),b2(end)],[0,a2(sort([1:end,1:end-1])),0],'g');
-h3=plot([b3(1),sort([b3,b3(2:end)-1e-8]),b3(end)],[0,a3(sort([1:end,1:end-1])),0],'c');
+h0=plot([b0(1),sort([b0,b0(2:end)-1e-8]),b0(end)],[0,a0(sort([1:end,1:end-1])),0]./sum(a0),'r');
+h1=plot([b1(1),sort([b1,b1(2:end)-1e-8]),b1(end)],[0,a1(sort([1:end,1:end-1])),0]./sum(a1),'m');
+h2=plot([b2(1),sort([b2,b2(2:end)-1e-8]),b2(end)],[0,a2(sort([1:end,1:end-1])),0]./sum(a2),'g');
+h3=plot([b3(1),sort([b3,b3(2:end)-1e-8]),b3(end)],[0,a3(sort([1:end,1:end-1])),0]./sum(a3),'c');
 hold off
 xlabel('house price');
 ylabel('probability');
 legend([h0,h1,h2,h3],{'first recession','repeated recession','first boom','repeated boom'},'Interpreter','latex','Location','North')
 subplot(1,3,2)
 hold on
-plot([d0(1),sort([d0,d0(2:end)-1e-8]),d0(end)],[0,c0(sort([1:end,1:end-1])),0],'r');
-plot([d1(1),sort([d1,d1(2:end)-1e-8]),d1(end)],[0,c1(sort([1:end,1:end-1])),0],'m');
-plot([d2(1),sort([d2,d2(2:end)-1e-8]),d2(end)],[0,c2(sort([1:end,1:end-1])),0],'g');
-plot([d3(1),sort([d3,d3(2:end)-1e-8]),d3(end)],[0,c3(sort([1:end,1:end-1])),0],'c');
+plot([d0(1),sort([d0,d0(2:end)-1e-8]),d0(end)],[0,c0(sort([1:end,1:end-1])),0]./sum(c0),'r');
+plot([d1(1),sort([d1,d1(2:end)-1e-8]),d1(end)],[0,c1(sort([1:end,1:end-1])),0]./sum(c1),'m');
+plot([d2(1),sort([d2,d2(2:end)-1e-8]),d2(end)],[0,c2(sort([1:end,1:end-1])),0]./sum(c2),'g');
+plot([d3(1),sort([d3,d3(2:end)-1e-8]),d3(end)],[0,c3(sort([1:end,1:end-1])),0]./sum(c3),'c');
 hold off
 xlabel('interest rate');
 ylabel('probability');
 subplot(1,3,3)
 hold on
-plot([f0(1),sort([f0,f0(2:end)-1e-8]),f0(end)],[0,e0(sort([1:end,1:end-1])),0],'r');
-plot([f1(1),sort([f1,f1(2:end)-1e-8]),f1(end)],[0,e1(sort([1:end,1:end-1])),0],'m');
-plot([f2(1),sort([f2,f2(2:end)-1e-8]),f2(end)],[0,e2(sort([1:end,1:end-1])),0],'g');
-plot([f3(1),sort([f3,f3(2:end)-1e-8]),f3(end)],[0,e3(sort([1:end,1:end-1])),0],'c');
+plot([f0(1),sort([f0,f0(2:end)-1e-8]),f0(end)],[0,e0(sort([1:end,1:end-1])),0]./sum(e0),'r');
+plot([f1(1),sort([f1,f1(2:end)-1e-8]),f1(end)],[0,e1(sort([1:end,1:end-1])),0]./sum(e1),'m');
+plot([f2(1),sort([f2,f2(2:end)-1e-8]),f2(end)],[0,e2(sort([1:end,1:end-1])),0]./sum(e2),'g');
+plot([f3(1),sort([f3,f3(2:end)-1e-8]),f3(end)],[0,e3(sort([1:end,1:end-1])),0]./sum(e3),'c');
 hold off
 xlabel('user cost of housing');
 ylabel('probability');
@@ -280,7 +291,7 @@ c = max(0,[getCApprox(Sol3.grid_N,Sol3.distrGrid,squeeze(Sol3.c(:,1,:)),Sol3.idx
                  getCApprox(Sol3.grid_N,Sol3.distrGrid,squeeze(Sol3.c(:,3,:)),Sol3.idx,Sol3.ergodic_weights(2,:));...
                  getCApprox(Sol3.grid_N,Sol3.distrGrid,squeeze(Sol3.c(:,4,:)),Sol3.idx,Sol3.ergodic_weights(2,:))]);
 
-figure(9)
+figure(10)
 subplot(2,2,1)
 hold on
 plot(StaticParams.aGrid_pol,c(1,:),'r');
@@ -352,3 +363,51 @@ ergodic_gini_PFI = [sum(sum((pdf(1,:)'*pdf(1,:)).*abs(repmat(StaticParams.aGrid'
             /(2*StaticParams.aGrid*pdf(3,:)');...
             sum(sum((pdf(4,:)'*pdf(4,:)).*abs(repmat(StaticParams.aGrid',[1,size(pdf,2)])-repmat(StaticParams.aGrid,[size(pdf,2),1])),1),2)...
             /(2*StaticParams.aGrid*pdf(4,:)')];
+
+%--------------------------------------------------------------------------
+% Comparison with and without aggregate risk
+%--------------------------------------------------------------------------
+pdf = 0.5.*(preSol.pdf_b+preSol.pdf_g);
+gini_avg = sum(sum((pdf(1,:)'*pdf(1,:)).*abs(repmat(StaticParams.aGrid',[1,size(pdf,2)])-repmat(StaticParams.aGrid,[size(pdf,2),1])),1),2)...
+            /(2*StaticParams.aGrid*pdf(1,:)');
+[Yz,Ya] = ndgrid(1:2,StaticParams.aGrid,1,1,1);
+h_policy = @(r,q) interpn(1:2,StaticParams.aGrid_pol,StaticParams.RGrid,StaticParams.qGrid,preSol.h_b,Yz,Ya,(1+r).*ones(size(Yz)),q.*ones(size(Yz)));
+h_stationary = [h_policy(preSol.agR_stationary_b,preSol.agA_stationary_b);...
+                h_policy(preSol.agR_stationary_g,preSol.agA_stationary_g)];
+h_bound = [(1/(1-StaticParams.theta).*StaticParams.aGrid./preSol.agA_stationary_b);...
+           (1/(1-StaticParams.theta).*StaticParams.aGrid./preSol.agA_stationary_b);...
+           (1/(1-StaticParams.theta).*StaticParams.aGrid./preSol.agA_stationary_g);...
+           (1/(1-StaticParams.theta).*StaticParams.aGrid./preSol.agA_stationary_g)];
+bool_constr_large = sum((h_stationary>=h_bound),2);
+prob_constr = [sum(preSol.pdf_cond_b(1,1:bool_constr_large(1)));...
+               sum(preSol.pdf_cond_b(2,1:bool_constr_large(2)));...
+               sum(preSol.pdf_cond_g(1,1:bool_constr_large(3)));...
+               sum(preSol.pdf_cond_g(2,1:bool_constr_large(4)))];
+debtToIncome = -[(0.5.*sum(preSol.pdf_cond_b_b(:,1:56)./sum(preSol.pdf_cond_b_b(:,1:56),2),1))*StaticParams.bGrid(1:56)'./0.982,...
+                 (0.5.*sum(preSol.pdf_cond_b_g(:,1:56)./sum(preSol.pdf_cond_b_g(:,1:56),2),1))*StaticParams.bGrid(1:56)'./1.054];
+
+preSolStats=[preSol.agA_stationary_b,preSol.agA_stationary_g,0.5.*(preSol.agA_stationary_b+preSol.agA_stationary_g);
+             preSol.agR_stationary_b,preSol.agR_stationary_g,0.5.*(preSol.agR_stationary_b+preSol.agR_stationary_g);
+             preSol.gini_b,preSol.gini_g,gini_avg;
+             sum(prob_constr(1:2)),sum(prob_constr(3:4)),sum(prob_constr)/2;...
+             debtToIncome,mean(debtToIncome)];
+
+h_bound = [(1/(1-StaticParams.theta).*StaticParams.aGrid_pol./Sol3.ergodic_weights(1,1));...
+           (1/(1-StaticParams.theta).*StaticParams.aGrid_pol./Sol3.ergodic_weights(1,1));...
+           (1/(1-StaticParams.theta).*StaticParams.aGrid_pol./Sol3.ergodic_weights(2,1));...
+           (1/(1-StaticParams.theta).*StaticParams.aGrid_pol./Sol3.ergodic_weights(2,1))];
+bool_constr = (h>=h_bound);
+a_bound=StaticParams.aGrid_pol(sum(bool_constr,2))';
+bool_constr_large = sum(repmat(StaticParams.aGrid,[4,1])<=repmat(a_bound,[1,length(StaticParams.aGrid)]),2);
+prob_constr = [sum(Sol3.pdf_cond(1,1:bool_constr_large(1)));...
+               sum(Sol3.pdf_cond(2,1:bool_constr_large(2)));...
+               sum(Sol3.pdf_cond(3,1:bool_constr_large(3)));...
+               sum(Sol3.pdf_cond(4,1:bool_constr_large(4)))];
+debtToIncome = -[(0.5.*sum(Sol3.pdf_cond_b(1:2,1:56)./sum(Sol3.pdf_cond_b(1:2,1:56),2),1))*StaticParams.bGrid(1:56)'./0.982,...
+                 (0.5.*sum(Sol3.pdf_cond_b(3:4,1:56)./sum(Sol3.pdf_cond_b(3:4,1:56),2),1))*StaticParams.bGrid(1:56)'./1.054];
+
+Sol3Stats = [Sol3.ergodic_q_pr,mean(Sol3.ergodic_q_pr);
+             Sol3.ergodic_r,mean(Sol3.ergodic_r);
+             Sol3.ergodic_gini',ergodic_gini_PFI(end);
+             sum(prob_constr(1:2)),sum(prob_constr(3:4)),sum(prob_constr)/2;...
+             debtToIncome,mean(debtToIncome)];
