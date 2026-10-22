@@ -411,3 +411,6 @@ Sol3Stats = [Sol3.ergodic_q_pr,mean(Sol3.ergodic_q_pr);
              Sol3.ergodic_gini',ergodic_gini_PFI(end);
              sum(prob_constr(1:2)),sum(prob_constr(3:4)),sum(prob_constr)/2;...
              debtToIncome,mean(debtToIncome)];
+
+consVol = sqrt(0.5.*(log(0.982)^2+log(1.054)^2)-mean(log([0.982,1.054]))^2);
+Volatilities = [consVol,std(log(Res.q(end,:))),Res.r_sd(end,:)];
